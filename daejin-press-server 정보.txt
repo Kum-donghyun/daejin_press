@@ -1,0 +1,9 @@
+[daejin-press-server 정보]
+공인 ip: 211.233.212.66
+계정 이름: root
+비밀번호: N2%hu9587Rh
+
+[daejin-press-was-server 정보]
+사설 ip: 10.10.20.6
+계정 이름: root
+비밀번호: A2*=HyTqn5Rf

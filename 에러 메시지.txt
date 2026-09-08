@@ -1,0 +1,29 @@
+공개 기사 조회 에러: Error: Unknown column 'a.view_count' in 'field list'
+    at PromisePool.query (C:\Users\금동현\Desktop\대진대 신문사 플랫폼\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at C:\Users\금동현\Desktop\대진대 신문사 플랫폼\backend\src\routes\article.js:34:35
+    at Layer.handle [as handle_request] (C:\Users\금동현\Desktop\대진대 신문사 플랫폼\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\금동현\Desktop\대진대 신문사 플랫폼\backend\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\금동현\Desktop\대진대 신문사 플랫폼\backend\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\금동현\Desktop\대진대 신문사 플랫폼\backend\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\금동현\Desktop\대진대 신문사 플랫폼\backend\node_modules\express\lib\router\index.js:284:15
+    at param (C:\Users\금동현\Desktop\대진대 신문사 플랫폼\backend\node_modules\express\lib\router\index.js:365:14)
+    at param (C:\Users\금동현\Desktop\대진대 신문사 플랫폼\backend\node_modules\express\lib\router\index.js:376:14)
+    at router.process_params (C:\Users\금동현\Desktop\대진대 신문사 플랫폼\backend\node_modules\express\lib\router\index.js:421:3) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT a.id, a.title, a.subtitle, a.body,\n' +
+    '              a.photo1_url, a.photo2_url,\n' +
+    '              a.caption1, a.caption2,\n' +
+    '              a.reporter_name, a.reporter_email,\n' +
+    '              a.view_count, a.read_time_total, a.read_time_count,\n' +        
+    '              a.approved_at,\n' +
+    '              ns.section_key, ns.section_name, ns.page_number,\n' +
+    '              ns.has_subtitle, ns.has_body, ns.photo_count, ns.caption_required,\n' +
+    '              n.issue_number, n.title as newspaper_title, n.publish_date\n' + 
+    '       FROM articles a\n' +
+    '       JOIN newspaper_sections ns ON a.section_id = ns.id\n' +
+    '       JOIN newspapers n ON a.newspaper_id = n.id\n' +
+    "       WHERE a.id = '1' AND a.status = 'approved'",
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'a.view_count' in 'field list'"
+}

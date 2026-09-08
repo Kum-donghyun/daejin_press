@@ -1,0 +1,315 @@
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #f4f4f0;
+  color: #111827;
+}
+
+/* ══════════════════════════════════════
+   마스트헤드 (세리프 제호)
+══════════════════════════════════════ */
+.masthead-title {
+  font-family: 'Noto Serif KR', 'Nanum Myeongjo', Georgia, serif;
+  font-size: clamp(22px, 4.5vw, 46px);
+  font-weight: 700;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+
+/* ══════════════════════════════════════
+   속보 티커 애니메이션
+══════════════════════════════════════ */
+.ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: ticker-scroll 38s linear infinite;
+}
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ══════════════════════════════════════
+   내비게이션 항목
+══════════════════════════════════════ */
+.dju-nav-item {
+  display: block;
+  padding: 16px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -4px;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.dju-nav-item:hover {
+  color: #fff;
+  border-bottom-color: #FFD700;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ══════════════════════════════════════
+   에디토리얼 그리드 레이아웃
+══════════════════════════════════════ */
+
+/* 히어로 2열 그리드 */
+.editorial-hero {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  border: 1px solid #e5e7eb;
+  margin-top: 20px;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* 뉴스 4열 그리드 — gap 트릭으로 셀 구분선 표현 */
+.editorial-news-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: #e5e7eb;
+  border: 1px solid #e5e7eb;
+}
+.editorial-news-grid > .grid-cell {
+  background: #fff;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 오피니언 3열 그리드 */
+.editorial-opinion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: #e5e7eb;
+  border: 1px solid #e5e7eb;
+}
+.editorial-opinion-grid > .grid-cell {
+  background: #fff;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 퀵뉴스 4열 */
+.editorial-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+/* ── 반응형 ── */
+@media (max-width: 900px) {
+  .editorial-hero          { grid-template-columns: 1fr; }
+  .editorial-news-grid     { grid-template-columns: repeat(2, 1fr); }
+  .editorial-opinion-grid  { grid-template-columns: repeat(2, 1fr); }
+  .editorial-quick-grid    { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 540px) {
+  .editorial-news-grid     { grid-template-columns: 1fr; }
+  .editorial-opinion-grid  { grid-template-columns: 1fr; }
+  .editorial-quick-grid    { grid-template-columns: 1fr; }
+}
+
+/* ══════════════════════════════════════
+   기사 카드 공통 호버 효과
+══════════════════════════════════════ */
+.article-card {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.article-card:hover {
+  background: #f9fafb !important;
+}
+.article-card .article-title {
+  transition: color 0.15s;
+}
+.article-card:hover .article-title {
+  color: #003580;
+}
+
+/* ══════════════════════════════════════
+   사이드 기사 스택 (히어로 우측)
+══════════════════════════════════════ */
+.side-stack {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #e5e7eb;
+  background: #fff;
+}
+.side-article {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  flex: 1;
+  align-items: flex-start;
+  transition: background 0.15s;
+}
+
+/* ══════════════════════════════════════
+   섹션 구분선
+══════════════════════════════════════ */
+.section-divider {
+  display: flex;
+  align-items: center;
+  margin: 36px 0 16px;
+}
+.section-divider-bar {
+  width: 4px;
+  height: 22px;
+  background: #d32f2f;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+.section-divider-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: #111;
+  letter-spacing: -0.3px;
+}
+.section-divider-rule {
+  flex: 1;
+  border-top: 1px solid #e5e7eb;
+  margin-left: 14px;
+}
+.section-divider-action {
+  margin-left: 14px;
+  font-size: 12px;
+  color: #003580;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.section-divider-action:hover {
+  text-decoration: underline;
+}
+
+/* ══════════════════════════════════════
+   스크롤바 숨기기
+══════════════════════════════════════ */
+.scroll-hide::-webkit-scrollbar { display: none; }
+.scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ══════════════════════════════════════
+   모달
+══════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+}
+.modal-content {
+  background: white;
+  border-radius: 24px;
+  padding: 40px;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.3s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════
+   토스트 알림
+══════════════════════════════════════ */
+.toast {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  z-index: 200;
+  animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+}
+.toast-success { background: #10b981; }
+.toast-error   { background: #ef4444; }
+.toast-info    { background: #3b82f6; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(100px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ══════════════════════════════════════
+   레거시 호환 (다른 페이지용)
+══════════════════════════════════════ */
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+.card-hover { transition: all 0.3s ease; }
+.tab-active {
+  border-bottom: 2px solid #003580 !important;
+  color: #003580 !important;
+  font-weight: 800 !important;
+}
+
+/* ══════════════════════════════════════
+   푸터 그리드 반응형
+══════════════════════════════════════ */
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+.footer-brand {
+  grid-column: span 2;
+}
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .footer-brand {
+    grid-column: span 2;
+  }
+}
+@media (max-width: 480px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+  .footer-brand {
+    grid-column: span 1;
+  }
+}
