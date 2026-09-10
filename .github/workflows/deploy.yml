@@ -1,0 +1,123 @@
+# 1. 업무 매뉴얼 이름 설정
+name: Nginx + Node + React Deployment
+
+# 2. 업무 매뉴얼 동작 시점 설정
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+# 3. 업무 매뉴얼을 더 작은 단위로 쪼개서, 해야 할 일을 작성
+jobs:
+  # 1) 프론트(React) 빌드 & Public(Nginx) 배포
+  build-and-deploy-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # (1) 레포 체크아웃
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # (2) React 빌드용 Node 세팅
+      - name: Setup Node (for building React)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      # (3) React 빌드 -> frontend/build 생성
+      - name: Build React (frontend/build)
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+          test -d build
+
+      # (4-0) Public 서버에 build 업로드 받을 폴더 생성
+      - name: Ensure web root exists on Public
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PUBLIC_HOST }}
+          username: ${{ secrets.PUBLIC_USER }}
+          key: ${{ secrets.PUBLIC_SSH_KEY }}
+          script: |
+            sudo mkdir -p "/usr/share/nginx/html"
+            sudo chown -R $USER:$USER "/usr/share/nginx/html" || true
+
+      # (4) build를 Public 서버 Nginx root로 업로드
+      - name: Upload build to Public Server (Nginx web root)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PUBLIC_HOST }}
+          username: ${{ secrets.PUBLIC_USER }}
+          key: ${{ secrets.PUBLIC_SSH_KEY }}
+          source: "frontend/build/**"
+          target: "/usr/share/nginx/html"
+          strip_components: 2
+
+      # (5) nginx 설정 검사 후 reload
+      - name: Reload Nginx on Public
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PUBLIC_HOST }}
+          username: ${{ secrets.PUBLIC_USER }}
+          key: ${{ secrets.PUBLIC_SSH_KEY }}
+          script: |
+            sudo nginx -t
+            sudo systemctl reload nginx
+
+  # 2) 백엔드(Node/PM2) Private 서버 배포 (Public을 Bastion으로 경유)
+  deploy-backend:
+    runs-on: ubuntu-latest
+    needs: [build-and-deploy-frontend]
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Deploy backend to Private via Public (Bastion)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PUBLIC_HOST }}
+          username: ${{ secrets.PUBLIC_USER }}
+          key: ${{ secrets.PUBLIC_SSH_KEY }}
+          script: |
+            set -e
+
+            # Public -> Private 접속
+            ssh -o StrictHostKeyChecking=no root@10.10.20.6 "bash -lc '
+              set -e
+
+              # (1) nvm 로드 (비로그인 쉘에서도 node/npm 사용 가능하게)
+              export NVM_DIR=\"\$HOME/.nvm\"
+              [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"
+
+              # (2) 원하는 Node 버전 활성화
+              nvm use --lts
+
+              # (3) 레포 동기화
+              REPO_URL=\"${{ secrets.REPO_URL }}\"
+              APP_DIR=\"${{ secrets.PRIVATE_APP_DIR }}\"
+
+              if [ ! -d \"\$APP_DIR/.git\" ]; then
+                git clone \"\$REPO_URL\" \"\$APP_DIR\"
+              fi
+
+              cd \"\$APP_DIR\"
+              git fetch --all
+              git reset --hard origin/main
+
+              # (4) 백엔드 의존성 설치 + PM2 재기동
+              cd \"\$APP_DIR/backend\"
+              npm ci --omit=dev
+
+              pm2 describe dju-press-backend >/dev/null 2>&1 \
+                && pm2 reload dju-press-backend \
+                || pm2 start src/server.js --name dju-press-backend
+
+              pm2 save
+            '"
