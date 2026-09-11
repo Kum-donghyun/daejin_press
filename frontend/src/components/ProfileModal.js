@@ -2,7 +2,7 @@
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
-const API = `http://${window.location.hostname}:5000/api`;
+const API = '/api';
 const POSITIONS = ['기자', '수습기자', '편집장', '부편집장'];
 
 const POSITION_DESC = {

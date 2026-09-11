@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
-const API = `http://${window.location.hostname}:5000/api`;
+const API = '/api';
 
 /**
  * 24h DJU 속보 관리 패널 (기자/편집장 공통 사용 컴포넌트)

@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 import axios from 'axios';
 
-const API     = `http://${window.location.hostname}:5000/api`;
-const BACKEND = `http://${window.location.hostname}:5000`;
+const API     = '/api';
+const BACKEND = '';
 
 /* ── 카테고리 매핑 ──────────────────────────────────────────────────────── */
 const CAT_MAP = [

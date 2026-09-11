@@ -3,8 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
-const API = `http://${window.location.hostname}:5000/api`;
-const BACKEND = `http://${window.location.hostname}:5000`;
+const API = '/api';
+const BACKEND = '';
 
 const STATUS_LABEL = {
   draft:    { text: '임시저장', bg: '#f3f4f6', color: '#6b7280', icon: 'fas fa-save' },

@@ -82,7 +82,7 @@ function ApplyForm({ onSuccess, accentColor }) {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/contact/apply', {
+      const res = await fetch('/api/contact/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -150,7 +150,7 @@ function ReportForm({ onSuccess, accentColor }) {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/contact/report', {
+      const res = await fetch('/api/contact/report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -220,7 +220,7 @@ function AdvertiseForm({ onSuccess, accentColor }) {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/contact/advertise', {
+      const res = await fetch('/api/contact/advertise', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

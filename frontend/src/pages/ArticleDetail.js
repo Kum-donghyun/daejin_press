@@ -4,8 +4,8 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import CommentSection from '../components/CommentSection';
 
-const API     = `http://${window.location.hostname}:5000/api`;
-const BACKEND = `http://${window.location.hostname}:5000`;
+const API     = '/api';
+const BACKEND = '';
 
 /* ── 유틸 ── */
 function stripHtml(html) {

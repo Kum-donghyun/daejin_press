@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import ProfileModal from './ProfileModal';
 
-const API = `http://${window.location.hostname}:5000/api`;
+const API = '/api';
 
 function UserMenu() {
   const { user, logout, getRoleLabel } = useAuth();

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-const API = `http://${window.location.hostname}:5000/api`;
+const API = '/api';
 
 function formatSec(sec) {
   if (!sec || sec === 0) return '-';

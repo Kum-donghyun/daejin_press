@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
-const API = `http://${window.location.hostname}:5000/api`;
+const API = '/api';
 
 const DEFAULT_SECTIONS = [
   { section_key: '1면탑', section_name: '1면 탑', page_number: 1, volume: 7.1, title_max_length: 18, subtitle_max_length: 18, photo_required: true, photo_count: 1, photo_orientation: '가로형', caption_required: true, has_body: true, has_subtitle: true, sort_order: 1 },

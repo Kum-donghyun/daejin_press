@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
-const API = `http://${window.location.hostname}:5000/api`;
-const BACKEND = `http://${window.location.hostname}:5000`;
+const API = '/api';
+const BACKEND = '';
 
 function calcManuscriptVolume(text) {
   if (!text) return 0;

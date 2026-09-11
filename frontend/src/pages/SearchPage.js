@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
-const API = `http://${window.location.hostname}:5000/api`;
+const API = '/api';
 
 // 키워드를 텍스트에서 하이라이트
 function Highlight({ text = '', keyword = '' }) {
@@ -176,7 +176,7 @@ export default function SearchPage() {
                 {hasPhoto && (
                   <div style={{ flexShrink: 0, width: '110px', height: '80px', borderRadius: '6px', overflow: 'hidden', background: '#f3f4f6' }}>
                     <img
-                      src={`http://${window.location.hostname}:5000${a.photo1_url}`}
+                      src={a.photo1_url}
                       alt=""
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />

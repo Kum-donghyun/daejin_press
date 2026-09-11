@@ -5,7 +5,7 @@ import axios from 'axios';
 import TickerManager from '../components/TickerManager';
 import ArticleStatsPanel from '../components/ArticleStatsPanel';
 
-const API = `http://${window.location.hostname}:5000/api`;
+const API = '/api';
 
 const ONLINE_STATUS = {
   draft:    { text: '임시저장',     bg: '#f3f4f6', color: '#6b7280' },
