@@ -87,6 +87,34 @@ function NewspaperDetail({ mode }) {
     }
   };
 
+  const handlePublish = async () => {
+    if (!window.confirm(`제${newspaper.issue_number}호를 발행하시겠습니까?\n발행하면 메인 화면에 이 호수의 승인된 기사들이 노출됩니다.`)) return;
+    try {
+      const token = localStorage.getItem('dju_token');
+      await axios.put(API + '/newspapers/' + id + '/publish', {}, {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      showToast('신문이 발행되었습니다.', 'success');
+      fetchData();
+    } catch (err) {
+      showToast(err.response && err.response.data ? err.response.data.message : '발행에 실패했습니다.', 'error');
+    }
+  };
+
+  const handleUnpublish = async () => {
+    if (!window.confirm('발행을 취소하시겠습니까? 메인 화면에서 이 호수가 내려갑니다.')) return;
+    try {
+      const token = localStorage.getItem('dju_token');
+      await axios.put(API + '/newspapers/' + id + '/unpublish', {}, {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      showToast('신문 발행이 취소되었습니다.', 'success');
+      fetchData();
+    } catch (err) {
+      showToast(err.response && err.response.data ? err.response.data.message : '발행 취소에 실패했습니다.', 'error');
+    }
+  };
+
   const startEditSection = (sec) => {
     setEditingSectionId(sec.id);
     setSectionForm({
@@ -238,9 +266,19 @@ function NewspaperDetail({ mode }) {
         ) : (
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-extrabold mb-2">{newspaper.title}</h1>
+              <div className="flex items-center space-x-3 mb-2">
+                <h1 className="text-2xl font-extrabold">{newspaper.title}</h1>
+                {newspaper.status === 'published' ? (
+                  <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">발행완료</span>
+                ) : newspaper.status === 'in_progress' ? (
+                  <span className="bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full">작성중</span>
+                ) : (
+                  <span className="bg-white/30 text-white text-xs font-bold px-3 py-1 rounded-full">초안</span>
+                )}
+              </div>
               <p className="text-blue-200">
                 {'발행일 ' + new Date(newspaper.publish_date).toLocaleDateString('ko-KR') + ' | 작성자 ' + newspaper.creator_name}
+                {newspaper.published_at ? (' | 발행 처리 ' + new Date(newspaper.published_at).toLocaleString('ko-KR')) : ''}
               </p>
               {pendingConfirms > 0 && (
                 <div className="mt-3 bg-red-500/20 rounded-xl px-4 py-2 inline-block">
@@ -250,6 +288,25 @@ function NewspaperDetail({ mode }) {
             </div>
             {isAdmin && (
               <div className="flex space-x-2">
+                {newspaper.status === 'published' ? (
+                  <button
+                    onClick={handleUnpublish}
+                    className="bg-white text-red-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-50 transition"
+                  >
+                    <i className="fas fa-undo mr-1"></i>
+                    <span>발행 취소</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handlePublish}
+                    disabled={pendingConfirms > 0}
+                    title={pendingConfirms > 0 ? '컨펌 대기/진행 중인 기사가 있어 발행할 수 없습니다.' : ''}
+                    className={'px-4 py-2 rounded-lg font-bold text-sm transition ' + (pendingConfirms > 0 ? 'bg-white/30 text-white/60 cursor-not-allowed' : 'bg-green-500 text-white hover:bg-green-600')}
+                  >
+                    <i className="fas fa-check-circle mr-1"></i>
+                    <span>발행하기</span>
+                  </button>
+                )}
                 <button
                   onClick={() => setEditingInfo(true)}
                   className="bg-white/20 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-white/30 transition"

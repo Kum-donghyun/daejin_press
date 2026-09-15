@@ -48,6 +48,12 @@ if (!fs.existsSync(uploadsDir)) {
               WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='articles' AND COLUMN_NAME='confirm_target_id'`,
       sql: `ALTER TABLE articles ADD COLUMN confirm_target_id INT NULL DEFAULT NULL COMMENT '컨펌 요청 대상 (편집장/부편집장) user id'`,
     },
+    {
+      name: 'newspapers.published_at',
+      check: `SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS
+              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='newspapers' AND COLUMN_NAME='published_at'`,
+      sql: `ALTER TABLE newspapers ADD COLUMN published_at TIMESTAMP NULL DEFAULT NULL COMMENT '관리자가 명시적으로 발행 처리한 시각'`,
+    },
   ];
   for (const m of migrations) {
     try {

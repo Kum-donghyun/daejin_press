@@ -234,6 +234,48 @@ router.get('/:id', authenticate, authorize('admin', 'reporter'), async (req, res
   }
 });
 
+// ─── 신문 발행 처리 (관리자만) ───
+router.put('/:id/publish', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT id, status FROM newspapers WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: '신문을 찾을 수 없습니다.' });
+    }
+
+    const [pending] = await pool.query(
+      `SELECT COUNT(*) as count FROM articles WHERE newspaper_id = ? AND status IN ('submitted', 'confirming')`,
+      [req.params.id]
+    );
+    if (pending[0].count > 0) {
+      return res.status(400).json({ message: '컨펌 대기/진행 중인 기사가 있어 발행할 수 없습니다.' });
+    }
+
+    await pool.query(
+      `UPDATE newspapers SET status = 'published', published_at = NOW() WHERE id = ?`,
+      [req.params.id]
+    );
+
+    res.json({ message: '신문이 발행되었습니다.' });
+  } catch (err) {
+    console.error('신문 발행 에러:', err);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+});
+
+// ─── 신문 발행 취소 (관리자만) ───
+router.put('/:id/unpublish', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    await pool.query(
+      `UPDATE newspapers SET status = 'in_progress', published_at = NULL WHERE id = ?`,
+      [req.params.id]
+    );
+    res.json({ message: '신문 발행이 취소되었습니다.' });
+  } catch (err) {
+    console.error('신문 발행 취소 에러:', err);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+});
+
 // ─── 신문 정보 수정 (관리자만 - 호수, 발행일) ───
 router.put('/:id', authenticate, authorize('admin'), async (req, res) => {
   const { issue_number, publish_date } = req.body;
@@ -404,14 +446,23 @@ router.delete('/sections/:sectionId', authenticate, authorize('admin'), async (r
 // ─── 승인된 기사 조회 (공개 API - 메인 페이지용) ───
 router.get('/approved/articles', async (req, res) => {
   try {
-    // 가장 최신 호수 중 승인된 기사가 있는 호수
-    const [latestNewspaper] = await pool.query(
-      `SELECT n.id, n.issue_number, n.title, n.publish_date FROM newspapers n
-       WHERE n.id = (
-         SELECT a.newspaper_id FROM articles a WHERE a.status = 'approved'
-         ORDER BY a.approved_at DESC LIMIT 1
-       )`
+    // 관리자가 명시적으로 '발행' 처리한 호수 중 가장 최근 호수를 우선 노출
+    // (발행 처리된 호수가 하나도 없다면, 과거 호환을 위해 가장 최근에 승인된 기사가 속한 호수를 사용)
+    let [latestNewspaper] = await pool.query(
+      `SELECT id, issue_number, title, publish_date FROM newspapers
+       WHERE status = 'published'
+       ORDER BY published_at DESC LIMIT 1`
     );
+
+    if (latestNewspaper.length === 0) {
+      [latestNewspaper] = await pool.query(
+        `SELECT n.id, n.issue_number, n.title, n.publish_date FROM newspapers n
+         WHERE n.id = (
+           SELECT a.newspaper_id FROM articles a WHERE a.status = 'approved'
+           ORDER BY a.approved_at DESC LIMIT 1
+         )`
+      );
+    }
 
     if (latestNewspaper.length === 0) {
       return res.json({ newspaper: null, articles: [], tabs: [] });
