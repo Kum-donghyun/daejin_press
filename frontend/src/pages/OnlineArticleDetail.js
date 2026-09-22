@@ -65,9 +65,14 @@ export default function OnlineArticleDetail() {
   const token   = localStorage.getItem('dju_token');
   const headers = { Authorization: `Bearer ${token}` };
 
+  const enterTime    = useRef(Date.now());
+  const sentReadTime = useRef(false);
+
   const fetchArticle = useCallback(() => {
     setLoading(true);
     setNotFound(false);
+    enterTime.current  = Date.now();
+    sentReadTime.current = false;
     axios.get(`${API}/online-articles/public/${articleId}`)
       .then(res => {
         const a = res.data.article;
@@ -83,6 +88,10 @@ export default function OnlineArticleDetail() {
         });
         setPhoto1Preview(a.photo1_url ? BACKEND + a.photo1_url : null);
         setPhoto2Preview(a.photo2_url ? BACKEND + a.photo2_url : null);
+        // 조회수 기록 (기자/편집장 제외)
+        axios.post(`${API}/online-articles/${articleId}/view`, {}, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }).catch(() => {});
       })
       .catch(err => { if (err.response?.status === 404) setNotFound(true); })
       .finally(() => setLoading(false));
@@ -90,6 +99,33 @@ export default function OnlineArticleDetail() {
   }, [articleId]);
 
   useEffect(() => { fetchArticle(); }, [fetchArticle]);
+
+  /* ── 체류시간 기록 ── */
+  const sendReadTime = useCallback(() => {
+    if (sentReadTime.current) return;
+    sentReadTime.current = true;
+    const seconds = (Date.now() - enterTime.current) / 1000;
+    if (seconds >= 3) {
+      const url  = `${API}/online-articles/${articleId}/read-time`;
+      const data = JSON.stringify({ seconds });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(url, new Blob([data], { type: 'application/json' }));
+      } else {
+        axios.post(url, { seconds }).catch(() => {});
+      }
+    }
+  }, [articleId]);
+
+  useEffect(() => {
+    const onHide = () => { if (document.visibilityState === 'hidden') sendReadTime(); };
+    document.addEventListener('visibilitychange', onHide);
+    window.addEventListener('pagehide', sendReadTime);
+    return () => {
+      document.removeEventListener('visibilitychange', onHide);
+      window.removeEventListener('pagehide', sendReadTime);
+      sendReadTime();
+    };
+  }, [sendReadTime]);
 
   // ── 편집 모드 ──────────────────────────────────────────────
   const startEdit = () => setEditMode(true);

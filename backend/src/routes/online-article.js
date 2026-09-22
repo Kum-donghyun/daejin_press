@@ -58,6 +58,92 @@ router.get('/public/:id', async (req, res) => {
   }
 });
 
+// ── 공개: 조회수 기록 (비로그인 포함, 기자/관리자 제외) ──────
+router.post('/:id/view', async (req, res) => {
+  const articleId = req.params.id;
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (token) {
+    try {
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      if (decoded.role === 'admin' || decoded.role === 'reporter') {
+        return res.json({ counted: false });
+      }
+    } catch {}
+  }
+
+  try {
+    await pool.query(
+      `INSERT INTO article_views (article_id, article_type, view_type) VALUES (?, 'online', 'view')`,
+      [articleId]
+    );
+    res.json({ counted: true });
+  } catch (err) {
+    console.error('온라인 기사 조회수 기록 에러:', err.message);
+    res.json({ counted: false });
+  }
+});
+
+// ── 공개: 체류시간 기록 ───────────────────────────────────────
+router.post('/:id/read-time', async (req, res) => {
+  const articleId = req.params.id;
+  const { seconds } = req.body;
+  if (!seconds || seconds < 3) return res.json({ ok: false });
+
+  const token = req.headers.authorization?.split(' ')[1];
+  if (token) {
+    try {
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      if (decoded.role === 'admin' || decoded.role === 'reporter') {
+        return res.json({ ok: false });
+      }
+    } catch {}
+  }
+
+  try {
+    await pool.query(
+      `INSERT INTO article_read_times (article_id, article_type, seconds) VALUES (?, 'online', ?)`,
+      [articleId, Math.min(Math.round(seconds), 3600)]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('온라인 기사 체류시간 기록 에러:', err.message);
+    res.json({ ok: false });
+  }
+});
+
+// ── 통계 조회 (기자/관리자용) ─────────────────────────────────
+router.get('/:id/stats', authenticate, async (req, res) => {
+  if (req.user.role !== 'admin' && req.user.role !== 'reporter') {
+    return res.status(403).json({ message: '권한이 없습니다.' });
+  }
+  try {
+    const [[viewRow]] = await pool.query(
+      `SELECT COUNT(*) AS view_count FROM article_views WHERE article_id = ? AND article_type = 'online' AND view_type = 'view'`,
+      [req.params.id]
+    );
+    const [[timeRow]] = await pool.query(
+      `SELECT COUNT(*) AS read_count, IFNULL(AVG(seconds),0) AS avg_seconds
+       FROM article_read_times WHERE article_id = ? AND article_type = 'online'`,
+      [req.params.id]
+    );
+    const [[commentRow]] = await pool.query(
+      `SELECT COUNT(*) AS comment_count FROM comments WHERE article_id = ? AND article_type = 'online' AND parent_id IS NULL AND is_deleted = 0`,
+      [req.params.id]
+    );
+    res.json({
+      view_count: viewRow.view_count,
+      read_count: timeRow.read_count,
+      avg_seconds: Math.round(timeRow.avg_seconds),
+      comment_count: commentRow.comment_count,
+    });
+  } catch (err) {
+    res.status(500).json({ message: '서버 오류' });
+  }
+});
+
 // ── 인증 필요 라우트 ─────────────────────────────────────────
 
 // 내 온라인 기사 목록 (기자/admin)

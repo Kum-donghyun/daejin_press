@@ -85,15 +85,8 @@ router.get('/:articleId/public', async (req, res) => {
   }
 });
 
-// ─── 공개: 조회수 카운트 (컬럼 미지원 — 무시) ───
-router.post('/:articleId/view', async (req, res) => {
-  res.json({ ok: true });
-});
+// ─── 조회수/체류시간 기록은 routes/views.js 에서 처리 (server.js에서 먼저 등록됨) ───
 
-// ─── 공개: 체류시간 기록 (컬럼 미지원 — 무시) ───
-router.post('/:articleId/read-time', async (req, res) => {
-  res.json({ ok: true });
-});
 
 // ─── 내가 담당하는 기사 목록 (기자용) ───
 router.get('/my/assigned', authenticate, authorize('admin', 'reporter'), async (req, res) => {

@@ -121,9 +121,9 @@ function AuthModal({ onClose }) {
             <div className="mt-4 p-3 bg-blue-50 rounded-xl">
               <p className="text-xs font-semibold text-blue-700 mb-2">테스트 계정</p>
               <div className="space-y-1 text-xs text-blue-600">
-                <p>관리자: admin@daejin.ac.kr / admin1234</p>
-                <p>기 자: reporter@daejin.ac.kr / reporter1234</p>
-                <p>독 자: student@daejin.ac.kr / reader1234</p>
+                <p>관리자: </p>
+                <p>기 자: </p>
+                <p>독 자: (본인 학번 또는 교번)@daejin.ac.kr / 자유 비밀번호 설정</p>
               </div>
             </div>
           </form>

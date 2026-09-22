@@ -21,13 +21,7 @@ router.post('/:id/view', async (req, res) => {
   }
 
   try {
-    await pool.query(
-      `INSERT INTO article_views (article_id, view_type)
-       VALUES (?, 'view')
-       ON DUPLICATE KEY UPDATE view_count = view_count + 0`, // just insert
-      [articleId]
-    );
-    // 누적 방식: 단순 INSERT
+    // 누적 방식: 단순 INSERT (article_views 테이블에는 view_count 컬럼이 없음)
     await pool.query(
       `INSERT INTO article_views (article_id, view_type) VALUES (?, 'view')`,
       [articleId]
@@ -39,6 +33,7 @@ router.post('/:id/view', async (req, res) => {
     );
     res.json({ counted: true });
   } catch (err) {
+    console.error('조회수 기록 에러:', err.message);
     res.json({ counted: false });
   }
 });
@@ -67,6 +62,7 @@ router.post('/:id/read-time', async (req, res) => {
     );
     res.json({ ok: true });
   } catch (err) {
+    console.error('체류시간 기록 에러:', err.message);
     res.json({ ok: false });
   }
 });
