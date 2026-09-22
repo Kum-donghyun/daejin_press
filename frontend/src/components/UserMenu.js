@@ -136,7 +136,7 @@ function UserMenu() {
         {notiOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setNotiOpen(false)}></div>
-            <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+            <div className="absolute right-0 mt-2 w-80 dropdown-menu-responsive bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 className="font-bold text-gray-900">알림</h3>
                 {unreadCount > 0 && (
@@ -192,7 +192,7 @@ function UserMenu() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)}></div>
-          <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+          <div className="absolute right-0 mt-2 w-64 dropdown-menu-responsive bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
             {/* 사용자 정보 */}
             <div className="p-4 bg-gray-50 border-b border-gray-100">
               <div className="flex items-center space-x-3">

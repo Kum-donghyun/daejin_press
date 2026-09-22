@@ -99,7 +99,7 @@ function ApplyForm({ onSuccess, accentColor }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
+      <div className="contact-form-grid">
         <Field label="이름" required>
           <input style={inputStyle} value={form.name} onChange={set('name')} placeholder="홍길동" required />
         </Field>
@@ -170,7 +170,7 @@ function ReportForm({ onSuccess, accentColor }) {
       <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '12px 16px', marginBottom: '24px', fontSize: '13px', color: '#92400e' }}>
         <strong>🔒 익명 제보 가능</strong> — 이름, 연락처, 이메일은 선택 사항입니다. 비워두시면 익명으로 접수됩니다.
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
+      <div className="contact-form-grid">
         <Field label="이름 (선택)">
           <input style={inputStyle} value={form.name} onChange={set('name')} placeholder="익명" />
         </Field>
@@ -237,7 +237,7 @@ function AdvertiseForm({ onSuccess, accentColor }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
+      <div className="contact-form-grid">
         <Field label="회사/단체명" required>
           <input style={inputStyle} value={form.company} onChange={set('company')} placeholder="(주)대진기업" required />
         </Field>

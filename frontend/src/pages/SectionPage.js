@@ -61,11 +61,11 @@ function HeroCard({ article, onClick }) {
 
   return (
     <div onClick={onClick}
-      style={{ cursor: 'pointer', display: 'grid', gridTemplateColumns: article.photo1_url ? '1fr 1fr' : '1fr', gap: '32px', background: '#fff', padding: '32px', borderBottom: '2px solid #111', marginBottom: '0' }}
-      className="group"
+      style={{ cursor: 'pointer', gridTemplateColumns: article.photo1_url ? '1fr 1fr' : '1fr', gap: '32px', background: '#fff', padding: '32px', borderBottom: '2px solid #111', marginBottom: '0' }}
+      className="group section-hero-grid"
     >
       {article.photo1_url && (
-        <div style={{ overflow: 'hidden', maxHeight: '380px' }}>
+        <div className="section-hero-img-wrap" style={{ overflow: 'hidden', maxHeight: '380px' }}>
           <img src={BACKEND + article.photo1_url} alt={title}
             style={{ width: '100%', height: '380px', objectFit: 'cover', transition: 'transform 0.5s' }}
             className="group-hover:scale-105" />
@@ -258,7 +258,7 @@ function SectionPage() {
       </div>
 
       {/* ── 본문 ── */}
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px 80px' }}>
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 clamp(12px, 4vw, 24px) 80px' }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '80px 0', color: '#9ca3af' }}>
             <i className="fas fa-spinner fa-spin" style={{ fontSize: '32px', display: 'block', marginBottom: '12px' }}></i>
@@ -285,7 +285,7 @@ function SectionPage() {
 
             {/* ② 2단 레이아웃: 리스트(좌) + 그리드(우) */}
             {rest.length > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '0', marginTop: '0' }}>
+              <div className="section-split-layout" style={{ gap: '0', marginTop: '0' }}>
 
                 {/* 좌: 가로형 리스트 */}
                 <div style={{ padding: '0 32px 0 0', borderRight: '1px solid #e5e7eb' }}>

@@ -190,15 +190,15 @@ export default function OnlineArticleDetail() {
       )}
 
       {/* ── 브레드크럼 ── */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #e5e7eb', padding: '10px 0', marginTop: editMode ? '52px' : 0 }}>
-        <div style={{ maxWidth: '820px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#9ca3af' }}>
+      <div className="article-breadcrumb" style={{ background: '#fff', borderBottom: '1px solid #e5e7eb', padding: '10px 0', marginTop: editMode ? '52px' : 0 }}>
+        <div style={{ maxWidth: '820px', margin: '0 auto', padding: '0 clamp(12px, 4vw, 24px)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#9ca3af' }}>
           <span style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>홈</span>
           <i className="fas fa-chevron-right" style={{ fontSize: '9px' }}></i>
           <span style={{ cursor: 'pointer', color: '#003580', fontWeight: 700 }}>온라인 기사</span>
         </div>
       </div>
 
-      <article style={{ maxWidth: '820px', margin: '0 auto', padding: '36px 24px 80px', background: 'transparent' }}>
+      <article className="article-wrapper" style={{ maxWidth: '820px', margin: '0 auto', padding: '36px 24px 80px', background: 'transparent' }}>
 
         {/* ── 카테고리 배지 ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>

@@ -304,8 +304,8 @@ export default function ArticleDetail() {
       )}
 
       {/* ── 브레드크럼 바 ── */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #e5e7eb', padding: '10px 0', marginTop: editMode ? '52px' : 0 }}>
-        <div style={{ maxWidth: '820px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#9ca3af' }}>
+      <div className="article-breadcrumb" style={{ background: '#fff', borderBottom: '1px solid #e5e7eb', padding: '10px 0', marginTop: editMode ? '52px' : 0 }}>
+        <div style={{ maxWidth: '820px', margin: '0 auto', padding: '0 clamp(12px, 4vw, 24px)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#9ca3af' }}>
           <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#003580', fontSize: '12px', fontWeight: 600 }}>
             <i className="fas fa-home" style={{ marginRight: '4px' }}></i>메인
           </button>
@@ -320,7 +320,7 @@ export default function ArticleDetail() {
       </div>
 
       {/* ── 본문 래퍼 ── */}
-      <article style={{ maxWidth: '820px', margin: '0 auto', padding: '36px 24px 80px', background: 'transparent' }}>
+      <article className="article-wrapper" style={{ maxWidth: '820px', margin: '0 auto', padding: '36px 24px 80px', background: 'transparent' }}>
 
         {/* ── 카테고리 + 신문 호수 ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>

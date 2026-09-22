@@ -53,7 +53,7 @@ function FeaturedArticle({ article, onClick }) {
   const title = stripHtml(article.title);
   const sub   = stripHtml(article.subtitle);
   return (
-    <div className="article-card group" onClick={onClick} style={{ position: 'relative', overflow: 'hidden', height: '420px', cursor: 'pointer' }}>
+    <div className="article-card group featured-article-card" onClick={onClick} style={{ position: 'relative', overflow: 'hidden', cursor: 'pointer' }}>
       {article.photo1_url ? (
         <img
           src={BACKEND + article.photo1_url}
@@ -68,7 +68,7 @@ function FeaturedArticle({ article, onClick }) {
       )}
       {/* 그라데이션 오버레이 */}
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.93) 0%, rgba(0,0,0,0.28) 55%, transparent 100%)' }}></div>
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '28px 30px', color: '#fff' }}>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 'clamp(14px, 4vw, 28px) clamp(16px, 4vw, 30px)', color: '#fff' }}>
         <span style={{ display: 'inline-block', background: cat.color, color: '#fff', fontSize: '10px', fontWeight: 900, padding: '3px 10px', letterSpacing: '1.2px', textTransform: 'uppercase', marginBottom: '10px' }}>
           {cat.label}
         </span>
@@ -254,7 +254,7 @@ function MainPage() {
       {/* ════════════════════════════════════
           본문 컨텐츠
       ════════════════════════════════════ */}
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 clamp(12px, 4vw, 24px)' }}>
 
         {/* ── 로그인 환영 배너 ── */}
         {isLoggedIn && (
@@ -390,7 +390,7 @@ function MainPage() {
         {/* ════════════════════════════════════
             DJU Quick-News 다크 섹션
         ════════════════════════════════════ */}
-        <div style={{ background: '#1a2238', marginTop: '48px', padding: '36px 40px' }}>
+        <div style={{ background: '#1a2238', marginTop: '48px', padding: 'clamp(20px, 5vw, 36px) clamp(16px, 5vw, 40px)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ width: '4px', height: '22px', background: '#FFD700', flexShrink: 0 }}></div>

@@ -44,8 +44,8 @@ function Navbar() {
               onMouseEnter={e => e.currentTarget.style.color = '#fff'}
               onMouseLeave={e => e.currentTarget.style.color = 'rgba(191,219,254,0.85)'}
             ><i className="fab fa-youtube"></i></a>
-            <span style={{ color: 'rgba(59,130,246,0.5)' }}>|</span>
-            <a href="#" style={{ color: 'rgba(191,219,254,0.85)', transition: 'color 0.15s', letterSpacing: '0.5px' }}
+            <span className="util-bar-optional" style={{ color: 'rgba(59,130,246,0.5)' }}>|</span>
+            <a href="#" className="util-bar-optional" style={{ color: 'rgba(191,219,254,0.85)', transition: 'color 0.15s', letterSpacing: '0.5px' }}
               onMouseEnter={e => e.currentTarget.style.color = '#fff'}
               onMouseLeave={e => e.currentTarget.style.color = 'rgba(191,219,254,0.85)'}
             >독자 투고</a>

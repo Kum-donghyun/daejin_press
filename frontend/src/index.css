@@ -125,6 +125,128 @@ body {
 }
 
 /* ══════════════════════════════════════
+   모바일 최적화 - 전역 기본
+══════════════════════════════════════ */
+html, body {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* iOS Safari 자동 확대 방지 (입력창 폰트 16px 이상 유지) */
+@media (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* 터치 스크롤 부드럽게 + 스크롤바 숨김 유지 */
+.scroll-hide {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 터치 타겟 최소 크기 보장 (아이콘 버튼) */
+@media (max-width: 768px) {
+  button, a { touch-action: manipulation; }
+}
+
+/* ══════════════════════════════════════
+   히어로 특집 기사 카드 - 모바일 높이 축소
+══════════════════════════════════════ */
+.featured-article-card { height: 420px; }
+@media (max-width: 768px) {
+  .featured-article-card { height: 300px; }
+}
+@media (max-width: 480px) {
+  .featured-article-card { height: 230px; }
+}
+
+/* ══════════════════════════════════════
+   섹션 페이지 - 히어로 카드 (사진+텍스트 2열)
+══════════════════════════════════════ */
+.section-hero-grid {
+  display: grid;
+  gap: 32px;
+}
+@media (max-width: 768px) {
+  .section-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    padding: 20px !important;
+  }
+  .section-hero-img-wrap { max-height: 220px !important; }
+  .section-hero-img-wrap img { height: 220px !important; }
+}
+
+/* ══════════════════════════════════════
+   섹션 페이지 - 좌(리스트) / 우(그리드 사이드바) 분할
+══════════════════════════════════════ */
+.section-split-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+}
+@media (max-width: 860px) {
+  .section-split-layout { grid-template-columns: 1fr !important; }
+  .section-split-layout > div:first-child {
+    border-right: none !important;
+    padding-right: 0 !important;
+  }
+  .section-split-layout > div:last-child {
+    padding-left: 0 !important;
+    margin-top: 12px;
+  }
+}
+
+/* ══════════════════════════════════════
+   제보/지원/광고 폼 - 2열 → 1열
+══════════════════════════════════════ */
+.contact-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 20px;
+}
+@media (max-width: 600px) {
+  .contact-form-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ══════════════════════════════════════
+   모달 - 모바일 여백/크기 축소
+══════════════════════════════════════ */
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 28px 22px;
+    border-radius: 18px;
+    width: 92%;
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+}
+
+/* ══════════════════════════════════════
+   드롭다운 메뉴 (알림/프로필) - 화면 밖으로 넘치지 않도록
+══════════════════════════════════════ */
+.dropdown-menu-responsive {
+  max-width: calc(100vw - 24px);
+}
+
+/* ══════════════════════════════════════
+   기사 상세 페이지 본문 래퍼 - 모바일 여백 축소
+══════════════════════════════════════ */
+@media (max-width: 600px) {
+  .article-wrapper { padding: 24px 16px 60px !important; }
+  .article-breadcrumb { padding: 8px 0 !important; }
+}
+
+/* ══════════════════════════════════════
+   네비게이션 바 - 모바일 최적화
+══════════════════════════════════════ */
+@media (max-width: 640px) {
+  .dju-nav-item { padding: 13px 11px !important; font-size: 12px !important; }
+}
+@media (max-width: 400px) {
+  .util-bar-optional { display: none !important; }
+}
+
+/* ══════════════════════════════════════
    기사 카드 공통 호버 효과
 ══════════════════════════════════════ */
 .article-card {
