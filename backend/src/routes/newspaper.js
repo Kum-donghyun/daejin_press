@@ -565,13 +565,23 @@ router.get('/section/articles', async (req, res) => {
 // ─── 지면보기(인터랙티브 뷰어): 발행된 호수 목록 (공개) ───
 router.get('/published/list', async (req, res) => {
   try {
-    const [rows] = await pool.query(
+    let [rows] = await pool.query(
       `SELECT id, issue_number, title, publish_date
        FROM newspapers
        WHERE status = 'published'
        ORDER BY published_at DESC
        LIMIT 30`
     );
+    // 발행 처리된 호수가 하나도 없다면(과거 호환) 승인 기사가 존재하는 호수들을 대신 노출
+    if (rows.length === 0) {
+      [rows] = await pool.query(
+        `SELECT DISTINCT n.id, n.issue_number, n.title, n.publish_date
+         FROM newspapers n
+         JOIN articles a ON a.newspaper_id = n.id AND a.status = 'approved'
+         ORDER BY n.publish_date DESC
+         LIMIT 30`
+      );
+    }
     res.json({ issues: rows });
   } catch (err) {
     console.error('발행호 목록 조회 에러:', err);
@@ -580,24 +590,35 @@ router.get('/published/list', async (req, res) => {
 });
 
 // ─── 지면보기(인터랙티브 뷰어): 특정 호수의 지면 전체 데이터 (공개) ───
-// id에 'latest'를 넘기면 가장 최근 발행호를 반환
+// id에 'latest'를 넘기면 가장 최근 발행호(없으면 가장 최근 승인 기사가 속한 호수)를 반환
 router.get('/published/:id/pages', async (req, res) => {
   try {
     let newspaperId = req.params.id;
 
     if (newspaperId === 'latest') {
-      const [[latest]] = await pool.query(
+      let [[latest]] = await pool.query(
         `SELECT id FROM newspapers WHERE status = 'published' ORDER BY published_at DESC LIMIT 1`
       );
+      if (!latest) {
+        // 명시적으로 '발행' 처리된 호수가 없으면, 승인된 기사가 존재하는 가장 최근 호수로 대체
+        [[latest]] = await pool.query(
+          `SELECT n.id FROM newspapers n
+           WHERE n.id = (
+             SELECT a.newspaper_id FROM articles a WHERE a.status = 'approved'
+             ORDER BY a.approved_at DESC LIMIT 1
+           )`
+        );
+      }
       if (!latest) return res.json({ newspaper: null, pages: [] });
       newspaperId = latest.id;
     }
 
+    // 발행(published) 상태 여부와 무관하게 승인 기사가 하나라도 있으면 열람 가능
     const [[np]] = await pool.query(
-      `SELECT id, issue_number, title, publish_date FROM newspapers WHERE id = ? AND status = 'published'`,
+      `SELECT id, issue_number, title, publish_date FROM newspapers WHERE id = ?`,
       [newspaperId]
     );
-    if (!np) return res.status(404).json({ message: '발행된 호수를 찾을 수 없습니다.' });
+    if (!np) return res.status(404).json({ message: '해당 호수를 찾을 수 없습니다.' });
 
     // 해당 호수의 모든 지면 구성(섹션) + 승인된 기사(있으면 매칭)
     const [sections] = await pool.query(

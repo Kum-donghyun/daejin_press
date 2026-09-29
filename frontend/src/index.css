@@ -249,22 +249,12 @@ html, body {
 /* ══════════════════════════════════════
    지면보기(인터랙티브 뷰어) - 페이지 넘김 애니메이션
 ══════════════════════════════════════ */
-.page-sheet-flip {
-  animation: none;
+.page-spread-flip {
+  animation: flipInSpread 0.32s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
-.page-sheet-flip.flip-next {
-  animation: flipInNext 0.38s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-.page-sheet-flip.flip-prev {
-  animation: flipInPrev 0.38s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-@keyframes flipInNext {
-  from { opacity: 0; transform: perspective(1400px) rotateY(-8deg) translateX(30px); }
-  to   { opacity: 1; transform: perspective(1400px) rotateY(0) translateX(0); }
-}
-@keyframes flipInPrev {
-  from { opacity: 0; transform: perspective(1400px) rotateY(8deg) translateX(-30px); }
-  to   { opacity: 1; transform: perspective(1400px) rotateY(0) translateX(0); }
+@keyframes flipInSpread {
+  from { opacity: 0; transform: perspective(1400px) rotateY(-4deg) translateX(16px) scale(0.99); }
+  to   { opacity: 1; transform: perspective(1400px) rotateY(0) translateX(0) scale(1); }
 }
 
 /* 지면 좌우 고정 네비게이션 화살표 */
@@ -288,9 +278,9 @@ html, body {
   transition: background 0.15s, transform 0.15s;
 }
 .page-nav-arrow:hover { background: #003580; color: #fff; transform: translateY(-50%) scale(1.08); }
-.page-nav-arrow-left  { left: calc(50% - 560px); }
-.page-nav-arrow-right { right: calc(50% - 560px); }
-@media (max-width: 1180px) {
+.page-nav-arrow-left  { left: calc(50% - 660px); }
+.page-nav-arrow-right { right: calc(50% - 660px); }
+@media (max-width: 1380px) {
   .page-nav-arrow-left  { left: 12px; }
   .page-nav-arrow-right { right: 12px; }
 }
