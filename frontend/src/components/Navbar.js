@@ -109,7 +109,7 @@ function Navbar() {
               DJU<span style={{ color: '#FFD700', margin: '0 3px' }}>·</span>신문
             </span>
 
-            {/* 섯션 메뉴 */}
+            {/* 섫션 메뉴 */}
             <ul className="flex items-center flex-1 overflow-x-auto scroll-hide" style={{ listStyle: 'none' }}>
               {NAV_ITEMS.map(item => (
                 <li key={item}>
@@ -120,6 +120,14 @@ function Navbar() {
                   >{item}</a>
                 </li>
               ))}
+              <li>
+                <a
+                  href="#"
+                  className="dju-nav-item"
+                  style={{ color: '#FFD700' }}
+                  onClick={e => { e.preventDefault(); navigate('/newspaper-view'); }}
+                ><i className="fas fa-book-open" style={{ marginRight: '6px' }}></i>지면보기</a>
+              </li>
             </ul>
 
             {/* 우측 액션 */}

@@ -562,4 +562,93 @@ router.get('/section/articles', async (req, res) => {
   }
 });
 
+// ─── 지면보기(인터랙티브 뷰어): 발행된 호수 목록 (공개) ───
+router.get('/published/list', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, issue_number, title, publish_date
+       FROM newspapers
+       WHERE status = 'published'
+       ORDER BY published_at DESC
+       LIMIT 30`
+    );
+    res.json({ issues: rows });
+  } catch (err) {
+    console.error('발행호 목록 조회 에러:', err);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+});
+
+// ─── 지면보기(인터랙티브 뷰어): 특정 호수의 지면 전체 데이터 (공개) ───
+// id에 'latest'를 넘기면 가장 최근 발행호를 반환
+router.get('/published/:id/pages', async (req, res) => {
+  try {
+    let newspaperId = req.params.id;
+
+    if (newspaperId === 'latest') {
+      const [[latest]] = await pool.query(
+        `SELECT id FROM newspapers WHERE status = 'published' ORDER BY published_at DESC LIMIT 1`
+      );
+      if (!latest) return res.json({ newspaper: null, pages: [] });
+      newspaperId = latest.id;
+    }
+
+    const [[np]] = await pool.query(
+      `SELECT id, issue_number, title, publish_date FROM newspapers WHERE id = ? AND status = 'published'`,
+      [newspaperId]
+    );
+    if (!np) return res.status(404).json({ message: '발행된 호수를 찾을 수 없습니다.' });
+
+    // 해당 호수의 모든 지면 구성(섹션) + 승인된 기사(있으면 매칭)
+    const [sections] = await pool.query(
+      `SELECT ns.id AS section_id, ns.section_key, ns.section_name, ns.page_number,
+              ns.volume, ns.sort_order, ns.photo_count,
+              a.id AS article_id, a.title, a.subtitle, a.body,
+              a.photo1_url, a.reporter_name, a.view_count
+       FROM newspaper_sections ns
+       LEFT JOIN articles a ON a.section_id = ns.id AND a.status = 'approved'
+       WHERE ns.newspaper_id = ?
+       ORDER BY ns.page_number ASC, ns.sort_order ASC`,
+      [np.id]
+    );
+
+    // 페이지 번호별로 그룹핑
+    const pageMap = new Map();
+    for (const s of sections) {
+      if (!pageMap.has(s.page_number)) pageMap.set(s.page_number, []);
+      pageMap.get(s.page_number).push({
+        section_id:    s.section_id,
+        section_key:   s.section_key,
+        section_name:  s.section_name,
+        volume:        s.volume ? Number(s.volume) : 4,
+        sort_order:    s.sort_order,
+        article_id:    s.article_id,
+        title:         s.title,
+        subtitle:      s.subtitle,
+        body:          s.body,
+        photo1_url:    s.photo1_url,
+        reporter_name: s.reporter_name,
+        view_count:    s.view_count || 0,
+        has_article:   !!s.article_id,
+      });
+    }
+
+    const pages = Array.from(pageMap.keys())
+      .sort((a, b) => a - b)
+      .map(pageNumber => ({
+        page_number: pageNumber,
+        // 지면 탭에 표시할 대표 제목(그 페이지의 가장 volume이 큰 기사)
+        headline: (pageMap.get(pageNumber)
+          .filter(s => s.title)
+          .sort((a, b) => b.volume - a.volume)[0] || {}).title || null,
+        sections: pageMap.get(pageNumber),
+      }));
+
+    res.json({ newspaper: np, pages });
+  } catch (err) {
+    console.error('지면보기 데이터 조회 에러:', err);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+});
+
 module.exports = router;
