@@ -30,9 +30,7 @@ body {
   display: inline-flex;
   white-space: nowrap;
   animation: ticker-scroll 38s linear infinite;
-}
-.ticker-track:hover {
-  animation-play-state: paused;
+  cursor: default;
 }
 @keyframes ticker-scroll {
   from { transform: translateX(0); }

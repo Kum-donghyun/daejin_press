@@ -33,13 +33,21 @@ function stripHtml(html) {
 }
 
 /* ── 섹션 구분선 ─────────────────────────────────────────────────────────── */
-function SectionDivider({ title, action }) {
+function SectionDivider({ title, action, onActionClick, expanded }) {
   return (
     <div className="section-divider">
       <div className="section-divider-bar"></div>
       <span className="section-divider-title">{title}</span>
       <div className="section-divider-rule"></div>
-      {action && <button className="section-divider-action">{action} →</button>}
+      {action && (
+        onActionClick ? (
+          <button className="section-divider-action" onClick={onActionClick}>
+            {action} <i className={`fas fa-chevron-${expanded ? 'up' : 'down'}`} style={{ fontSize: '10px', marginLeft: '4px' }}></i>
+          </button>
+        ) : (
+          <button className="section-divider-action">{action} →</button>
+        )
+      )}
     </div>
   );
 }
@@ -188,6 +196,8 @@ function MainPage() {
   const [videos, setVideos]       = useState([]);
   const [tickerItems, setTickerItems] = useState([]);
   const [hotIssues, setHotIssues] = useState([]);
+  const [showAllArticles, setShowAllArticles] = useState(false);
+  const [showOpinion, setShowOpinion] = useState(false);
 
   useEffect(() => {
     axios.get(`${API}/newspapers/approved/articles`)
@@ -241,7 +251,7 @@ function MainPage() {
               {tickerItems.length === 0
                 ? <span style={{ fontSize: '13px', color: '#9ca3af' }}>속보 내용을 불러오는 중...</span>
                 : [...tickerItems, ...tickerItems].map((item, i) => (
-                  <span key={i} style={{ marginRight: '60px', fontSize: '13px', color: '#374151', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+                  <span key={i} style={{ marginRight: '60px', fontSize: '13px', color: '#374151', whiteSpace: 'nowrap', cursor: 'default' }}>
                     <span style={{ color: '#d32f2f', marginRight: '8px', fontWeight: 700 }}>◆</span>{item}
                   </span>
                 ))
@@ -318,26 +328,67 @@ function MainPage() {
             </div>
 
             {/* ════════════════════════════════════
-                전체 기사 4열 그리드
+                대진대 핫이슈 (최근 7일 인기 기사) — 히어로 바로 아래 상단 노출
             ════════════════════════════════════ */}
-            {gridArticles.length > 0 && (
+            {hotIssues.length > 0 && (
               <>
-                <SectionDivider title="전체 기사" action="더보기" />
+                <SectionDivider title="🔥 대진대 핫이슈" action="전체보기" />
                 <div className="editorial-news-grid">
-                  {gridArticles.map(art => <GridArticle key={art.id} article={art} onClick={() => navigate(`/article/${art.id}`)} />)}
+                  {hotIssues.slice(0, 4).map(art => {
+                    const isOnline = art.article_type === 'online';
+                    const path = isOnline ? `/online-article/${art.id}` : `/article/${art.id}`;
+                    return (
+                      <div key={`${art.article_type}-${art.id}`} className="grid-cell article-card group" onClick={() => navigate(path)} style={{ cursor: 'pointer' }}>
+                        {art.photo1_url && (
+                          <div style={{ height: '120px', overflow: 'hidden', marginBottom: '12px' }}>
+                            <img src={BACKEND + art.photo1_url} alt=""
+                              className="group-hover:scale-105 transition duration-500"
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </div>
+                        )}
+                        {isOnline && <span style={{ fontSize: '9px', fontWeight: 900, color: '#2563eb', letterSpacing: '0.8px', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>ONLINE</span>}
+                        <h3 className="article-title" style={{ fontSize: '13px', fontWeight: 700, lineHeight: 1.5, color: '#111', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', marginBottom: '8px' }}>
+                          {art.title}
+                        </h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#9ca3af', borderTop: '1px solid #f3f4f6', paddingTop: '8px', marginTop: 'auto' }}>
+                          <span>{art.reporter_name || '기자'}</span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {!!art.view_count && <span><i className="far fa-eye" style={{ marginRight: '2px' }}></i>{Number(art.view_count).toLocaleString()}</span>}
+                            {!!art.comment_count && <span><i className="far fa-comment" style={{ marginRight: '2px' }}></i>{art.comment_count}</span>}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </>
             )}
 
             {/* ════════════════════════════════════
-                오피니언 · 칼럼 섹션
+                전체 기사 4열 그리드 — 토글로 접기/펼치기
+            ════════════════════════════════════ */}
+            {gridArticles.length > 0 && (
+              <>
+                <SectionDivider title="전체 기사" action={showAllArticles ? '접기' : '더보기'} expanded={showAllArticles} onActionClick={() => setShowAllArticles(p => !p)} />
+                {showAllArticles && (
+                  <div className="editorial-news-grid">
+                    {gridArticles.map(art => <GridArticle key={art.id} article={art} onClick={() => navigate(`/article/${art.id}`)} />)}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* ════════════════════════════════════
+                오피니언 · 칼럼 섹션 — 토글로 접기/펼치기
             ════════════════════════════════════ */}
             {opinionArticles.length > 0 && (
               <>
-                <SectionDivider title="오피니언 · 칼럼" action="전체보기" />
-                <div className="editorial-opinion-grid">
-                  {opinionArticles.map(art => <OpinionArticle key={art.id} article={art} onClick={() => navigate(`/article/${art.id}`)} />)}
-                </div>
+                <SectionDivider title="오피니언 · 칼럼" action={showOpinion ? '접기' : '전체보기'} expanded={showOpinion} onActionClick={() => setShowOpinion(p => !p)} />
+                {showOpinion && (
+                  <div className="editorial-opinion-grid">
+                    {opinionArticles.map(art => <OpinionArticle key={art.id} article={art} onClick={() => navigate(`/article/${art.id}`)} />)}
+                  </div>
+                )}
               </>
             )}
           </>
@@ -348,43 +399,6 @@ function MainPage() {
             <p style={{ fontSize: '18px', fontWeight: 900, color: '#9ca3af' }}>아직 발행된 기사가 없습니다</p>
             <p style={{ fontSize: '13px', marginTop: '8px' }}>편집장이 신문호를 승인하면 이곳에 기사가 표시됩니다.</p>
           </div>
-        )}
-
-        {/* ════════════════════════════════════
-            대진대 핫이슈 (최근 7일 인기 기사)
-        ════════════════════════════════════ */}
-        {hotIssues.length > 0 && (
-          <>
-            <SectionDivider title="🔥 대진대 핫이슈" action="전체보기" />
-            <div className="editorial-news-grid">
-              {hotIssues.map(art => {
-                const isOnline = art.article_type === 'online';
-                const path = isOnline ? `/online-article/${art.id}` : `/article/${art.id}`;
-                return (
-                  <div key={`${art.article_type}-${art.id}`} className="grid-cell article-card group" onClick={() => navigate(path)} style={{ cursor: 'pointer' }}>
-                    {art.photo1_url && (
-                      <div style={{ height: '120px', overflow: 'hidden', marginBottom: '12px' }}>
-                        <img src={BACKEND + art.photo1_url} alt=""
-                          className="group-hover:scale-105 transition duration-500"
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                    )}
-                    {isOnline && <span style={{ fontSize: '9px', fontWeight: 900, color: '#2563eb', letterSpacing: '0.8px', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>ONLINE</span>}
-                    <h3 className="article-title" style={{ fontSize: '13px', fontWeight: 700, lineHeight: 1.5, color: '#111', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', marginBottom: '8px' }}>
-                      {art.title}
-                    </h3>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#9ca3af', borderTop: '1px solid #f3f4f6', paddingTop: '8px', marginTop: 'auto' }}>
-                      <span>{art.reporter_name || '기자'}</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {!!art.view_count && <span><i className="far fa-eye" style={{ marginRight: '2px' }}></i>{Number(art.view_count).toLocaleString()}</span>}
-                        {!!art.comment_count && <span><i className="far fa-comment" style={{ marginRight: '2px' }}></i>{art.comment_count}</span>}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </>
         )}
 
         {/* ════════════════════════════════════
