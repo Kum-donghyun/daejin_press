@@ -14,7 +14,6 @@ import OnlineArticleDetail from './pages/OnlineArticleDetail';
 import SectionPage from './pages/SectionPage';
 import ContactPage from './pages/ContactPage';
 import SearchPage from './pages/SearchPage';
-import NewspaperPageView from './pages/NewspaperPageView';
 import Toast from './components/Toast';
 
 function App() {
@@ -38,8 +37,6 @@ function App() {
             <Route path="/section/:section" element={<SectionPage />} />
             <Route path="/contact/:type" element={<ContactPage />} />
             <Route path="/search" element={<SearchPage />} />
-            <Route path="/newspaper-view" element={<NewspaperPageView />} />
-            <Route path="/newspaper-view/:id" element={<NewspaperPageView />} />
           </Routes>
           <Toast />
         </div>
