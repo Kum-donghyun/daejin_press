@@ -38,6 +38,15 @@ body {
 }
 
 /* ══════════════════════════════════════
+   퀵 메뉴 - 모바일 축소
+══════════════════════════════════════ */
+@media (max-width: 640px) {
+  .quick-menu-btn { width: 38px !important; height: 60px !important; }
+  .quick-menu-btn span { display: none; }
+  .quick-menu-popup { width: 150px !important; left: 38px !important; }
+}
+
+/* ══════════════════════════════════════
    내비게이션 항목
 ══════════════════════════════════════ */
 .dju-nav-item {

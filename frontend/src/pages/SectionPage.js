@@ -11,7 +11,7 @@ const SECTION_META = {
   '전체':    { label: '전체 기사',  desc: '모든 섹션의 승인된 기사',       color: '#003580', icon: 'fas fa-th-large' },
   '대학뉴스': { label: '대학뉴스',  desc: '교내외 주요 소식과 대학 정책',   color: '#1565c0', icon: 'fas fa-university' },
   '학술·문화':{ label: '학술·문화', desc: '학술 연구와 문화·예술 이야기',   color: '#c62828', icon: 'fas fa-palette' },
-  '오피니언': { label: '오피니언',  desc: '칼럼·조명탑·기자한마디',        color: '#e65100', icon: 'fas fa-comment-alt' },
+  '오피니언': { label: '오피니언',  desc: '특집·조명탑·기자한마디',        color: '#e65100', icon: 'fas fa-comment-alt' },
   '기획특집': { label: '기획특집',  desc: '심층 기획 및 특집 보도',        color: '#00695c', icon: 'fas fa-layer-group' },
   '학생자치': { label: '학생자치',  desc: '총학생회·동아리·학생 활동',     color: '#283593', icon: 'fas fa-users' },
   '지역사회': { label: '지역사회',  desc: '포천 지역 및 사회 이슈',        color: '#2e7d32', icon: 'fas fa-map-marker-alt' },
@@ -21,7 +21,7 @@ const NAV_ITEMS = ['전체', '대학뉴스', '학술·문화', '오피니언', '
 
 const CAT_MAP = [
   { key: '문화면',      label: '문화',       color: '#c62828' },
-  { key: '칼럼',        label: '교수칼럼',   color: '#6a1b9a' },
+  { key: '칼럼',        label: '특집',   color: '#6a1b9a' },
   { key: '기자한마디',  label: '기자한마디', color: '#283593' },
   { key: '조명탑',      label: '오피니언',   color: '#e65100' },
   { key: '기획',        label: '기획',       color: '#00695c' },

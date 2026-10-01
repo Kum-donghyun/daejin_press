@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
+import QuickMenu from './components/QuickMenu';
 import MainPage from './pages/MainPage';
 import AdminPanel from './pages/AdminPanel';
 import CreateNewspaper from './pages/CreateNewspaper';
@@ -22,6 +23,7 @@ function App() {
       <Router>
         <div className="min-h-screen bg-[#f4f4f0]">
           <Navbar />
+          <QuickMenu />
           <Routes>
             <Route path="/" element={<MainPage />} />
             <Route path="/admin" element={<AdminPanel />} />
