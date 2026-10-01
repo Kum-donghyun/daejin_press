@@ -218,6 +218,18 @@ if (!fs.existsSync(uploadsDir)) {
     console.log('✅ articles.view_count 확인');
   } catch(e) { console.error('❌ articles.view_count:', e.message); }
 
+  // articles.read_time_total / read_time_count 컬럼
+  const articleStatCols = [
+    { name: 'read_time_total', sql: `ALTER TABLE articles ADD COLUMN read_time_total BIGINT NOT NULL DEFAULT 0 COMMENT '총 체류시간(초)'` },
+    { name: 'read_time_count', sql: `ALTER TABLE articles ADD COLUMN read_time_count INT NOT NULL DEFAULT 0 COMMENT '체류시간 제출 횟수'` },
+  ];
+  for (const col of articleStatCols) {
+    try {
+      const [[r]] = await pool.query(`SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='articles' AND COLUMN_NAME=?`, [col.name]);
+      if (r.cnt === 0) { await pool.query(col.sql); console.log(`✅ articles.${col.name} 추가`); }
+    } catch(e) { console.error(`❌ articles.${col.name}:`, e.message); }
+  }
+
   // article_views 테이블
   try {
     await pool.query(`CREATE TABLE IF NOT EXISTS article_views (

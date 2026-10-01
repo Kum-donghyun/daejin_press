@@ -120,7 +120,10 @@ export default function ArticleDetail() {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         }).catch(() => {});
       })
-      .catch(err => { if (err.response?.status === 404) setNotFound(true); })
+      .catch(err => {
+        console.error('기사 조회 실패:', err.response?.status, err.response?.data || err.message);
+        setNotFound(true);
+      })
       .finally(() => setLoading(false));
     window.scrollTo({ top: 0 });
   }, [articleId]);
