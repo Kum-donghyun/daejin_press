@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
 const API = '/api';
+const CATEGORY_OPTIONS = ['대학뉴스', '학술·문화', '오피니언', '기획특집', '학생자치', '지역사회'];
 
 function NewspaperDetail({ mode }) {
   const { id } = useParams();
@@ -125,6 +126,7 @@ function NewspaperDetail({ mode }) {
       has_subtitle: !!sec.has_subtitle,
       photo_required: !!sec.photo_required,
       photo_count: sec.photo_count != null ? sec.photo_count : 1,
+      category: sec.category || '',
     });
   };
 
@@ -144,6 +146,7 @@ function NewspaperDetail({ mode }) {
         has_subtitle: sectionForm.has_subtitle ? 1 : 0,
         photo_required: sectionForm.photo_required ? 1 : 0,
         photo_count: sectionForm.photo_count === '' ? 1 : parseInt(sectionForm.photo_count),
+        category: sectionForm.category || null,
       }, { headers: { Authorization: 'Bearer ' + token } });
       showToast('지면 정보가 수정되었습니다.', 'success');
       cancelEditSection();
@@ -184,6 +187,34 @@ function NewspaperDetail({ mode }) {
       fetchData();
     } catch (err) {
       showToast(err.response && err.response.data ? err.response.data.message : '지면 삭제에 실패했습니다.', 'error');
+    }
+  };
+
+  const handleRequestDelete = async (articleId) => {
+    if (!window.confirm('이미 승인된 기사입니다. 작성 기자에게 삭제 동의를 요청하시겠습니까?')) return;
+    try {
+      const token = localStorage.getItem('dju_token');
+      const res = await axios.post(API + '/articles/' + articleId + '/request-delete', {}, {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      showToast(res.data.message, 'success');
+      fetchData();
+    } catch (err) {
+      showToast(err.response && err.response.data ? err.response.data.message : '삭제 요청에 실패했습니다.', 'error');
+    }
+  };
+
+  const handleRespondDelete = async (articleId, approve) => {
+    if (approve && !window.confirm('삭제에 동의하면 해당 지면이 빈 기사로 초기화됩니다. 계속하시겠습니까?')) return;
+    try {
+      const token = localStorage.getItem('dju_token');
+      const res = await axios.put(API + '/articles/' + articleId + '/respond-delete', { approve }, {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      showToast(res.data.message, 'success');
+      fetchData();
+    } catch (err) {
+      showToast(err.response && err.response.data ? err.response.data.message : '응답 처리에 실패했습니다.', 'error');
     }
   };
 
@@ -373,6 +404,19 @@ function NewspaperDetail({ mode }) {
                               className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm"
                             />
                           </div>
+                          <div>
+                            <label className="text-xs text-gray-500 block mb-1">카테고리</label>
+                            <select
+                              value={sectionForm.category || ''}
+                              onChange={(e) => setSectionForm({ ...sectionForm, category: e.target.value })}
+                              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm"
+                            >
+                              <option value="">미지정</option>
+                              {CATEGORY_OPTIONS.map(c => (
+                                <option key={c} value={c}>{c}</option>
+                              ))}
+                            </select>
+                          </div>
                           <div className="flex items-center space-x-2 pt-5">
                             <input
                               type="checkbox"
@@ -425,7 +469,12 @@ function NewspaperDetail({ mode }) {
                   return (
                     <div key={sec.id} className="bg-white rounded-2xl p-5 border border-gray-100 flex items-center justify-between">
                       <div className="flex-1">
-                        <h3 className="font-extrabold text-gray-900">{sec.section_name}</h3>
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-extrabold text-gray-900">{sec.section_name}</h3>
+                          {sec.category && (
+                            <span className="bg-[#004b93]/10 text-[#004b93] text-xs font-bold px-2 py-0.5 rounded-full">{sec.category}</span>
+                          )}
+                        </div>
                         <p className="text-sm text-gray-400">{volText + titleText + photoText + (sec.has_subtitle ? ' | 부제목 있음' : ' | 부제목 없음')}</p>
                       </div>
                       <div className="flex space-x-2">
@@ -468,7 +517,13 @@ function NewspaperDetail({ mode }) {
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
                             <h3 className="font-extrabold text-gray-900">{sec.section_name}</h3>
+                            {sec.category && (
+                              <span className="bg-[#004b93]/10 text-[#004b93] text-xs font-bold px-2 py-0.5 rounded-full">{sec.category}</span>
+                            )}
                             {getStatusBadge(sec.article_status)}
+                            {sec.delete_request_status === 'pending' && (
+                              <span className="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded-full">삭제 동의 대기중</span>
+                            )}
                           </div>
                           <p className="text-sm text-gray-400">
                             {volText + titleText + photoText}
@@ -501,6 +556,33 @@ function NewspaperDetail({ mode }) {
                           >
                             {btnLabel}
                           </button>
+                        )}
+
+                        {isAdmin && sec.article_status === 'approved' && sec.delete_request_status !== 'pending' && (
+                          <button
+                            onClick={() => handleRequestDelete(sec.article_id)}
+                            className="px-3 py-2 rounded-xl font-bold text-sm bg-red-50 text-red-600 hover:bg-red-100 transition"
+                            title="작성 기자의 동의를 받아 이 기사를 삭제합니다."
+                          >
+                            <i className="fas fa-trash mr-1"></i>삭제 요청
+                          </button>
+                        )}
+
+                        {!isAdmin && sec.delete_request_status === 'pending' && sec.article_written_by === user.id && (
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleRespondDelete(sec.article_id, true)}
+                              className="px-3 py-2 rounded-xl font-bold text-sm bg-red-500 text-white hover:bg-red-600 transition"
+                            >
+                              삭제 동의
+                            </button>
+                            <button
+                              onClick={() => handleRespondDelete(sec.article_id, false)}
+                              className="px-3 py-2 rounded-xl font-bold text-sm bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+                            >
+                              거부
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>

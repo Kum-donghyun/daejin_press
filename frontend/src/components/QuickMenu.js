@@ -60,10 +60,10 @@ function QuickMenu() {
       <button
         className="quick-menu-btn"
         onClick={() => setOpen(p => !p)}
-        aria-label="퀴 메뉴 열기"
+        aria-label="퀵 메뉴 열기"
         style={{
-          width: '46px',
-          height: '72px',
+          width: '54px',
+          height: '64px',
           background: open ? '#002468' : '#003580',
           border: 'none',
           borderRadius: '0 12px 12px 0',
@@ -73,7 +73,7 @@ function QuickMenu() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '5px',
+          gap: '4px',
           boxShadow: '2px 0 12px rgba(0,0,0,0.18)',
           transition: 'background 0.2s, width 0.2s',
         }}
@@ -82,8 +82,7 @@ function QuickMenu() {
       >
         <i className={open ? 'fas fa-times' : 'fas fa-bars'} style={{ fontSize: '15px' }}></i>
         <span style={{
-          fontSize: '10px', fontWeight: 800, letterSpacing: '2px',
-          writingMode: 'vertical-rl', textOrientation: 'mixed',
+          fontSize: '10px', fontWeight: 800, letterSpacing: '1px',
         }}>QUICK</span>
       </button>
 

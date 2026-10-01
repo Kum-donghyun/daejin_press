@@ -54,6 +54,24 @@ if (!fs.existsSync(uploadsDir)) {
               WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='newspapers' AND COLUMN_NAME='published_at'`,
       sql: `ALTER TABLE newspapers ADD COLUMN published_at TIMESTAMP NULL DEFAULT NULL COMMENT '관리자가 명시적으로 발행 처리한 시각'`,
     },
+    {
+      name: 'newspaper_sections.category',
+      check: `SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS
+              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='newspaper_sections' AND COLUMN_NAME='category'`,
+      sql: `ALTER TABLE newspaper_sections ADD COLUMN category VARCHAR(30) DEFAULT NULL COMMENT '지면 편집 단계에서 지정하는 기사 카테고리'`,
+    },
+    {
+      name: 'articles.delete_requested_by',
+      check: `SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS
+              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='articles' AND COLUMN_NAME='delete_requested_by'`,
+      sql: `ALTER TABLE articles ADD COLUMN delete_requested_by INT NULL DEFAULT NULL COMMENT '삭제 요청을 보낸 관리자 user id'`,
+    },
+    {
+      name: 'articles.delete_request_status',
+      check: `SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS
+              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='articles' AND COLUMN_NAME='delete_request_status'`,
+      sql: `ALTER TABLE articles ADD COLUMN delete_request_status ENUM('none','pending','rejected') NOT NULL DEFAULT 'none' COMMENT '승인된 기사 삭제 요청에 대한 작성 기자의 동의 상태'`,
+    },
   ];
   for (const m of migrations) {
     try {

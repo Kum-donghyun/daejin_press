@@ -510,4 +510,118 @@ router.put('/:articleId/admin-edit', authenticate, authorize('admin'), async (re
   }
 });
 
+// ─── 관리자(편집장/부편집장): 승인된 기사 삭제 요청 (작성 기자 동의 필요) ───
+router.post('/:articleId/request-delete', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const [[me]] = await pool.query('SELECT position FROM users WHERE id = ?', [req.user.id]);
+    const myPos = me ? (me.position || '편집장') : null; // position 미지정 관리자는 편집장으로 간주
+    if (!['편집장', '부편집장'].includes(myPos)) {
+      return res.status(403).json({ message: '편집장/부편집장만 기사 삭제를 요청할 수 있습니다.' });
+    }
+
+    const [articles] = await pool.query(
+      `SELECT a.*, ns.section_name FROM articles a
+       JOIN newspaper_sections ns ON a.section_id = ns.id
+       WHERE a.id = ?`,
+      [req.params.articleId]
+    );
+    if (articles.length === 0) return res.status(404).json({ message: '기사를 찾을 수 없습니다.' });
+    const article = articles[0];
+
+    if (article.status !== 'approved') {
+      return res.status(400).json({ message: '승인(발행)된 기사만 삭제 요청할 수 있습니다.' });
+    }
+    if (!article.written_by) {
+      return res.status(400).json({ message: '작성 기자 정보가 없어 삭제 요청을 보낼 수 없습니다.' });
+    }
+
+    await pool.query(
+      `UPDATE articles SET delete_request_status = 'pending', delete_requested_by = ? WHERE id = ?`,
+      [req.user.id, req.params.articleId]
+    );
+
+    await pool.query(
+      `INSERT INTO notifications (user_id, type, title, message, article_id, section_id)
+       VALUES (?, 'delete_request', ?, ?, ?, ?)`,
+      [article.written_by, `[${article.section_name}] 기사 삭제 동의 요청`,
+       `${req.user.name}(${myPos})님이 해당 기사의 삭제에 대한 동의를 요청했습니다.`,
+       req.params.articleId, article.section_id]
+    );
+
+    res.json({ message: '작성 기자에게 삭제 동의 요청을 보냈습니다.' });
+  } catch (err) {
+    console.error('삭제 요청 에러:', err);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+});
+
+// ─── 작성 기자: 삭제 요청에 동의/거부 ───
+router.put('/:articleId/respond-delete', authenticate, authorize('admin', 'reporter'), async (req, res) => {
+  const { approve } = req.body;
+  try {
+    const [articles] = await pool.query(
+      `SELECT a.*, ns.section_name FROM articles a
+       JOIN newspaper_sections ns ON a.section_id = ns.id
+       WHERE a.id = ?`,
+      [req.params.articleId]
+    );
+    if (articles.length === 0) return res.status(404).json({ message: '기사를 찾을 수 없습니다.' });
+    const article = articles[0];
+
+    if (article.written_by !== req.user.id) {
+      return res.status(403).json({ message: '본인이 작성한 기사에 대해서만 응답할 수 있습니다.' });
+    }
+    if (article.delete_request_status !== 'pending') {
+      return res.status(400).json({ message: '대기 중인 삭제 요청이 없습니다.' });
+    }
+
+    if (approve) {
+      // 지면을 빈 기사 상태로 초기화
+      await pool.query(
+        `UPDATE articles SET
+          title = NULL, subtitle = NULL, body = NULL,
+          caption1 = NULL, caption2 = NULL,
+          photo1_url = NULL, photo2_url = NULL,
+          reporter_name = NULL, reporter_email = NULL,
+          written_by = NULL,
+          status = 'empty',
+          confirm_content = NULL, confirm_round = 0, confirm_target_id = NULL,
+          submitted_at = NULL, confirmed_at = NULL, approved_at = NULL, revised_at = NULL,
+          delete_request_status = 'none', delete_requested_by = NULL
+        WHERE id = ?`,
+        [req.params.articleId]
+      );
+
+      if (article.delete_requested_by) {
+        await pool.query(
+          `INSERT INTO notifications (user_id, type, title, message, article_id, section_id)
+           VALUES (?, 'delete_approved', ?, ?, ?, ?)`,
+          [article.delete_requested_by, `[${article.section_name}] 삭제 동의 완료`,
+           `${req.user.name}님이 기사 삭제에 동의하여 지면이 초기화되었습니다.`,
+           req.params.articleId, article.section_id]
+        );
+      }
+      res.json({ message: '기사 삭제에 동의했습니다. 지면이 초기화되었습니다.' });
+    } else {
+      await pool.query(
+        `UPDATE articles SET delete_request_status = 'none', delete_requested_by = NULL WHERE id = ?`,
+        [req.params.articleId]
+      );
+      if (article.delete_requested_by) {
+        await pool.query(
+          `INSERT INTO notifications (user_id, type, title, message, article_id, section_id)
+           VALUES (?, 'delete_rejected', ?, ?, ?, ?)`,
+          [article.delete_requested_by, `[${article.section_name}] 삭제 요청 거부`,
+           `${req.user.name}님이 기사 삭제 요청을 거부했습니다.`,
+           req.params.articleId, article.section_id]
+        );
+      }
+      res.json({ message: '삭제 요청을 거부했습니다.' });
+    }
+  } catch (err) {
+    console.error('삭제 응답 에러:', err);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+});
+
 module.exports = router;

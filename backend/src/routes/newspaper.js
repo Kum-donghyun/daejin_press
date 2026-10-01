@@ -6,28 +6,31 @@ const router = express.Router();
 
 // 기본 지면 배치 형식 정의
 const DEFAULT_SECTIONS = [
-  { section_key: '1면탑', section_name: '1면 탑', page_number: 1, volume: 7.1, title_max_length: 18, subtitle_max_length: 18, photo_required: 1, photo_count: 1, photo_orientation: '가로형', caption_required: 1, has_body: 1, has_subtitle: 1, sort_order: 1 },
-  { section_key: '1면부탑', section_name: '1면 부탑', page_number: 1, volume: 4.9, title_max_length: 14, subtitle_max_length: 25, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 1, sort_order: 2 },
-  { section_key: '2면탑', section_name: '2면 탑', page_number: 2, volume: 7.9, title_max_length: 18, subtitle_max_length: 30, photo_required: 1, photo_count: 1, photo_orientation: '가로형', caption_required: 1, has_body: 1, has_subtitle: 1, sort_order: 3 },
-  { section_key: '2면부탑', section_name: '2면 부탑', page_number: 2, volume: 5.4, title_max_length: 15, subtitle_max_length: null, photo_required: 1, photo_count: 1, caption_required: 1, has_body: 1, has_subtitle: 0, sort_order: 4 },
-  { section_key: '2면토막1', section_name: '2면 토막 1', page_number: 2, volume: 5.6, title_max_length: 12, subtitle_max_length: null, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 5 },
-  { section_key: '2면토막2', section_name: '2면 토막 2', page_number: 2, volume: 5.6, title_max_length: 12, subtitle_max_length: null, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 6 },
-  { section_key: '3면문화면1', section_name: '3면 문화면 1', page_number: 3, volume: 6.5, title_max_length: 12, subtitle_max_length: null, photo_required: 1, photo_count: 2, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 7 },
-  { section_key: '3면문화면2', section_name: '3면 문화면 2', page_number: 3, volume: 6.5, title_max_length: 12, subtitle_max_length: null, photo_required: 1, photo_count: 2, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 8 },
-  { section_key: '3면문화면3', section_name: '3면 문화면 3', page_number: 3, volume: 6.5, title_max_length: 12, subtitle_max_length: null, photo_required: 1, photo_count: 2, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 9 },
-  { section_key: '3면문화면4', section_name: '3면 문화면 4', page_number: 3, volume: 6.5, title_max_length: 12, subtitle_max_length: null, photo_required: 1, photo_count: 2, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 10 },
-  { section_key: '4면칼럼', section_name: '4면 칼럼', page_number: 4, volume: 6.8, title_max_length: null, subtitle_max_length: null, photo_required: 1, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 11 },
-  { section_key: '4면기자한마디', section_name: '4면 기자한마디', page_number: 4, volume: 3.6, title_max_length: 15, subtitle_max_length: null, photo_required: 1, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 12 },
-  { section_key: '4면한컷대진', section_name: '4면 한컷대진', page_number: 4, volume: null, title_max_length: null, subtitle_max_length: null, photo_required: 1, photo_count: 1, caption_required: 1, has_body: 0, has_subtitle: 0, sort_order: 13 },
-  { section_key: '4면조명탑1', section_name: '4면 조명탑 1', page_number: 4, volume: 3.5, title_max_length: 10, subtitle_max_length: null, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 14 },
-  { section_key: '4면조명탑2', section_name: '4면 조명탑 2', page_number: 4, volume: 3.5, title_max_length: 10, subtitle_max_length: null, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 15 },
-  { section_key: '5면조명탑3', section_name: '5면 조명탑 3', page_number: 5, volume: 3.5, title_max_length: 10, subtitle_max_length: null, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 16 },
-  { section_key: '5면기획탑', section_name: '5면 기획 탑', page_number: 5, volume: 14.1, title_min_length: 16, title_max_length: null, subtitle_min_length: 25, subtitle_max_length: null, photo_required: 1, photo_count: 2, caption_required: 0, has_body: 1, has_subtitle: 1, sort_order: 17 },
-  { section_key: '5면지역사회', section_name: '5면 지역사회', page_number: 5, volume: 8.0, title_max_length: 18, subtitle_max_length: 25, photo_required: 1, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 1, sort_order: 18 },
-  { section_key: '6면기획1', section_name: '6면 기획 1', page_number: 6, volume: 7.9, title_max_length: 18, subtitle_max_length: 25, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 1, sort_order: 19 },
-  { section_key: '6면기획2', section_name: '6면 기획 2', page_number: 6, volume: 7.8, title_max_length: 14, subtitle_max_length: 18, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 1, sort_order: 20 },
-  { section_key: '6면기획3', section_name: '6면 기획 3', page_number: 6, volume: 6.5, title_max_length: 14, subtitle_max_length: null, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 21 },
+  { section_key: '1면탑', section_name: '1면 탑', page_number: 1, volume: 7.1, title_max_length: 18, subtitle_max_length: 18, photo_required: 1, photo_count: 1, photo_orientation: '가로형', caption_required: 1, has_body: 1, has_subtitle: 1, sort_order: 1, category: '대학뉴스' },
+  { section_key: '1면부탑', section_name: '1면 부탑', page_number: 1, volume: 4.9, title_max_length: 14, subtitle_max_length: 25, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 1, sort_order: 2, category: '학생자치' },
+  { section_key: '2면탑', section_name: '2면 탑', page_number: 2, volume: 7.9, title_max_length: 18, subtitle_max_length: 30, photo_required: 1, photo_count: 1, photo_orientation: '가로형', caption_required: 1, has_body: 1, has_subtitle: 1, sort_order: 3, category: '대학뉴스' },
+  { section_key: '2면부탑', section_name: '2면 부탑', page_number: 2, volume: 5.4, title_max_length: 15, subtitle_max_length: null, photo_required: 1, photo_count: 1, caption_required: 1, has_body: 1, has_subtitle: 0, sort_order: 4, category: '학술·문화' },
+  { section_key: '2면토막1', section_name: '2면 토막 1', page_number: 2, volume: 5.6, title_max_length: 12, subtitle_max_length: null, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 5, category: '학술·문화' },
+  { section_key: '2면토막2', section_name: '2면 토막 2', page_number: 2, volume: 5.6, title_max_length: 12, subtitle_max_length: null, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 6, category: '학술·문화' },
+  { section_key: '3면문화면1', section_name: '3면 문화면 1', page_number: 3, volume: 6.5, title_max_length: 12, subtitle_max_length: null, photo_required: 1, photo_count: 2, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 7, category: '학술·문화' },
+  { section_key: '3면문화면2', section_name: '3면 문화면 2', page_number: 3, volume: 6.5, title_max_length: 12, subtitle_max_length: null, photo_required: 1, photo_count: 2, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 8, category: '학술·문화' },
+  { section_key: '3면문화면3', section_name: '3면 문화면 3', page_number: 3, volume: 6.5, title_max_length: 12, subtitle_max_length: null, photo_required: 1, photo_count: 2, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 9, category: '학술·문화' },
+  { section_key: '3면문화면4', section_name: '3면 문화면 4', page_number: 3, volume: 6.5, title_max_length: 12, subtitle_max_length: null, photo_required: 1, photo_count: 2, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 10, category: '학술·문화' },
+  { section_key: '4면칼럼', section_name: '4면 칼럼', page_number: 4, volume: 6.8, title_max_length: null, subtitle_max_length: null, photo_required: 1, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 11, category: '오피니언' },
+  { section_key: '4면기자한마디', section_name: '4면 기자한마디', page_number: 4, volume: 3.6, title_max_length: 15, subtitle_max_length: null, photo_required: 1, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 12, category: '오피니언' },
+  { section_key: '4면한컷대진', section_name: '4면 한컷대진', page_number: 4, volume: null, title_max_length: null, subtitle_max_length: null, photo_required: 1, photo_count: 1, caption_required: 1, has_body: 0, has_subtitle: 0, sort_order: 13, category: null },
+  { section_key: '4면조명탑1', section_name: '4면 조명탑 1', page_number: 4, volume: 3.5, title_max_length: 10, subtitle_max_length: null, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 14, category: '오피니언' },
+  { section_key: '4면조명탑2', section_name: '4면 조명탑 2', page_number: 4, volume: 3.5, title_max_length: 10, subtitle_max_length: null, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 15, category: '오피니언' },
+  { section_key: '5면조명탑3', section_name: '5면 조명탑 3', page_number: 5, volume: 3.5, title_max_length: 10, subtitle_max_length: null, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 16, category: '오피니언' },
+  { section_key: '5면기획탑', section_name: '5면 기획 탑', page_number: 5, volume: 14.1, title_min_length: 16, title_max_length: null, subtitle_min_length: 25, subtitle_max_length: null, photo_required: 1, photo_count: 2, caption_required: 0, has_body: 1, has_subtitle: 1, sort_order: 17, category: '기획특집' },
+  { section_key: '5면지역사회', section_name: '5면 지역사회', page_number: 5, volume: 8.0, title_max_length: 18, subtitle_max_length: 25, photo_required: 1, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 1, sort_order: 18, category: '지역사회' },
+  { section_key: '6면기획1', section_name: '6면 기획 1', page_number: 6, volume: 7.9, title_max_length: 18, subtitle_max_length: 25, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 1, sort_order: 19, category: '기획특집' },
+  { section_key: '6면기획2', section_name: '6면 기획 2', page_number: 6, volume: 7.8, title_max_length: 14, subtitle_max_length: 18, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 1, sort_order: 20, category: '기획특집' },
+  { section_key: '6면기획3', section_name: '6면 기획 3', page_number: 6, volume: 6.5, title_max_length: 14, subtitle_max_length: null, photo_required: 0, photo_count: 1, caption_required: 0, has_body: 1, has_subtitle: 0, sort_order: 21, category: '기획특집' },
 ];
+
+// 지면 편집 시 선택 가능한 카테고리 목록
+const CATEGORY_OPTIONS = ['대학뉴스', '학술·문화', '오피니언', '기획특집', '학생자치', '지역사회'];
 
 // ─── 신문 목록 조회 (관리자/기자) ───
 router.get('/', authenticate, authorize('admin', 'reporter'), async (req, res) => {
@@ -76,8 +79,8 @@ router.post('/', authenticate, authorize('admin'), async (req, res) => {
           (newspaper_id, section_key, section_name, page_number, volume,
            title_max_length, title_min_length, subtitle_max_length, subtitle_min_length,
            photo_required, photo_count, photo_orientation, caption_required,
-           has_body, has_subtitle, sort_order, assigned_reporter_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           has_body, has_subtitle, sort_order, assigned_reporter_id, category)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           newspaperId, sec.section_key, sec.section_name, sec.page_number, sec.volume || null,
           sec.title_max_length || null, sec.title_min_length || null,
@@ -85,7 +88,7 @@ router.post('/', authenticate, authorize('admin'), async (req, res) => {
           sec.photo_required || 0, sec.photo_count || 1, sec.photo_orientation || null,
           sec.caption_required || 0, sec.has_body !== undefined ? sec.has_body : 1,
           sec.has_subtitle !== undefined ? sec.has_subtitle : 1,
-          sec.sort_order || 0, sec.assigned_reporter_id || null
+          sec.sort_order || 0, sec.assigned_reporter_id || null, sec.category || null
         ]
       );
 
@@ -208,7 +211,8 @@ router.get('/:id', authenticate, authorize('admin', 'reporter'), async (req, res
     const [sections] = await pool.query(
       `SELECT ns.*, u.name as reporter_name, u.nickname as reporter_nickname,
         a.id as article_id, a.title as article_title, a.status as article_status,
-        a.submitted_at, a.confirmed_at
+        a.submitted_at, a.confirmed_at, a.written_by as article_written_by,
+        a.delete_request_status, a.delete_requested_by
       FROM newspaper_sections ns
       LEFT JOIN users u ON ns.assigned_reporter_id = u.id
       LEFT JOIN articles a ON a.section_id = ns.id
@@ -327,13 +331,18 @@ router.put('/sections/:sectionId/assign', authenticate, authorize('admin'), asyn
   }
 });
 
-// ─── 지면 정보 수정 (관리자만 - 이름, 분량, 글자수, 부제목 유무 등) ───
+// ─── 지면 편집 시 선택 가능한 카테고리 목록 조회 ───
+router.get('/categories/options', authenticate, authorize('admin', 'reporter'), async (req, res) => {
+  res.json({ categories: CATEGORY_OPTIONS });
+});
+
+// ─── 지면 정보 수정 (관리자만 - 이름, 분량, 글자수, 부제목 유무, 카테고리 등) ───
 router.put('/sections/:sectionId', authenticate, authorize('admin'), async (req, res) => {
   const {
     section_name, volume, title_max_length, title_min_length,
     subtitle_max_length, subtitle_min_length,
     photo_required, photo_count, photo_orientation,
-    caption_required, has_body, has_subtitle
+    caption_required, has_body, has_subtitle, category
   } = req.body;
 
   try {
@@ -350,13 +359,15 @@ router.put('/sections/:sectionId', authenticate, authorize('admin'), async (req,
         photo_orientation = ?,
         caption_required = COALESCE(?, caption_required),
         has_body = COALESCE(?, has_body),
-        has_subtitle = COALESCE(?, has_subtitle)
+        has_subtitle = COALESCE(?, has_subtitle),
+        category = ?
       WHERE id = ?`,
       [
         section_name || null, volume, title_max_length, title_min_length,
         subtitle_max_length, subtitle_min_length,
         photo_required, photo_count, photo_orientation,
         caption_required, has_body, has_subtitle,
+        category || null,
         req.params.sectionId
       ]
     );
@@ -473,7 +484,7 @@ router.get('/approved/articles', async (req, res) => {
     // 해당 호수의 승인된 기사 (한컷대진 제외)
     const [articles] = await pool.query(
       `SELECT a.id, a.title, a.subtitle, a.body, a.photo1_url, a.reporter_name,
-              ns.section_key, ns.section_name, ns.page_number, ns.sort_order
+              ns.section_key, ns.section_name, ns.page_number, ns.sort_order, ns.category
        FROM articles a
        JOIN newspaper_sections ns ON a.section_id = ns.id
        WHERE a.newspaper_id = ? AND a.status = 'approved' AND ns.section_key != '4면한컷대진'
@@ -520,9 +531,10 @@ router.get('/section/articles', async (req, res) => {
 
     if (section !== '전체' && SECTION_KEYS[section]) {
       const keys = SECTION_KEYS[section];
+      // ns.category가 지정되어 있으면 category 일치 우선, 없으면(과거 데이터 호환) section_key 키워드 매칭 사용
       const conditions = keys.map(() => `ns.section_key LIKE ?`).join(' OR ');
-      whereClause += ` AND (${conditions})`;
-      params = keys.map(k => `%${k}%`);
+      whereClause += ` AND (ns.category = ? OR (ns.category IS NULL AND (${conditions})))`;
+      params = [section, ...keys.map(k => `%${k}%`)];
     }
 
     const [[{ total }]] = await pool.query(
@@ -537,7 +549,7 @@ router.get('/section/articles', async (req, res) => {
     const [articles] = await pool.query(
       `SELECT a.id, a.title, a.subtitle, a.body, a.photo1_url, a.reporter_name,
               a.approved_at,
-              ns.section_key, ns.section_name, ns.page_number,
+              ns.section_key, ns.section_name, ns.page_number, ns.category,
               n.issue_number, n.title AS newspaper_title, n.publish_date
        FROM articles a
        JOIN newspaper_sections ns ON a.section_id = ns.id
