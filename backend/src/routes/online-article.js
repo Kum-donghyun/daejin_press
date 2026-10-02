@@ -3,6 +3,7 @@ const multer  = require('multer');
 const path    = require('path');
 const pool    = require('../config/db');
 const { authenticate, authorize } = require('../middleware/auth');
+const { computeHotStats } = require('./views');
 
 const router = express.Router();
 
@@ -133,11 +134,13 @@ router.get('/:id/stats', authenticate, async (req, res) => {
       `SELECT COUNT(*) AS comment_count FROM comments WHERE article_id = ? AND article_type = 'online' AND parent_id IS NULL AND is_deleted = 0`,
       [req.params.id]
     );
+    const hot = await computeHotStats(req.params.id, 'online');
     res.json({
       view_count: viewRow.view_count,
       read_count: timeRow.read_count,
       avg_seconds: Math.round(timeRow.avg_seconds),
       comment_count: commentRow.comment_count,
+      hot_issue: hot,
     });
   } catch (err) {
     res.status(500).json({ message: '서버 오류' });

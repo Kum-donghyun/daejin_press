@@ -202,6 +202,11 @@ export default function ArticleStatsPanel({ scope = 'reporter' }) {
             </div>
           )}
 
+          {/* 대진대 핫이슈 산정 기준 상세 */}
+          {selStats.hot_issue && (
+            <HotIssueBreakdown hot={selStats.hot_issue} />
+          )}
+
           <a href={`/article/${selected.article_id}`} target="_blank" rel="noopener noreferrer"
             style={{ display: 'block', marginTop: '16px', textAlign: 'center', padding: '10px', background: '#003580', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 700 }}>
             <i className="fas fa-external-link-alt" style={{ marginRight: '6px' }}></i>기사 보기
@@ -211,3 +216,74 @@ export default function ArticleStatsPanel({ scope = 'reporter' }) {
     </div>
   );
 }
+
+function HotIssueBreakdown({ hot }) {
+  const {
+    view_7d = 0, view_prev_7d = 0, view_growth_rate = 0,
+    avg_sec_7d = 0, comment_7d = 0,
+    view_score = 0, time_score = 0, comment_score = 0,
+    hot_score = 0, rank = null, total_candidates = null,
+  } = hot;
+
+  const maxComponent = Math.max(1, view_score, time_score, comment_score);
+  const growthColor = view_growth_rate > 0 ? '#059669' : view_growth_rate < 0 ? '#dc2626' : '#6b7280';
+  const growthIcon = view_growth_rate > 0 ? 'fa-arrow-up' : view_growth_rate < 0 ? 'fa-arrow-down' : 'fa-minus';
+
+  return (
+    <div style={{ marginTop: '16px', background: '#fff7ed', border: '1.5px solid #fed7aa', borderRadius: '10px', padding: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+        <p style={{ fontSize: '13px', fontWeight: 900, color: '#c2410c' }}>
+          <i className="fas fa-fire" style={{ marginRight: '5px' }}></i>대진대 핫이슈 산정 기준 (최근 7일)
+        </p>
+        {rank && (
+          <span style={{ fontSize: '11px', fontWeight: 900, color: '#fff', background: '#c2410c', padding: '3px 10px', borderRadius: '12px' }}>
+            전체 {total_candidates}건 중 {rank}위
+          </span>
+        )}
+      </div>
+
+      {/* 7일 조회수 상승률 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#6b7280', marginBottom: '10px' }}>
+        <span>최근 7일 조회수 ({view_prev_7d.toLocaleString()} → {view_7d.toLocaleString()})</span>
+        <span style={{ fontWeight: 900, color: growthColor }}>
+          <i className={`fas ${growthIcon}`} style={{ marginRight: '3px' }}></i>
+          {Math.abs(view_growth_rate)}%
+        </span>
+      </div>
+
+      {/* 3:2:1 가중치 분해 */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#78350f' }}>
+            <span>👁 조회수 {view_7d.toLocaleString()}회 × 3</span>
+            <span style={{ fontWeight: 900 }}>{view_score.toLocaleString()}점</span>
+          </div>
+          <StatBar value={view_score} max={maxComponent} color="#003580" />
+        </div>
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#78350f' }}>
+            <span>⏱ 평균 체류 {avg_sec_7d}초 × 2</span>
+            <span style={{ fontWeight: 900 }}>{time_score.toLocaleString()}점</span>
+          </div>
+          <StatBar value={time_score} max={maxComponent} color="#7c3aed" />
+        </div>
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#78350f' }}>
+            <span>💬 댓글 {comment_7d.toLocaleString()}개 × 1</span>
+            <span style={{ fontWeight: 900 }}>{comment_score.toLocaleString()}점</span>
+          </div>
+          <StatBar value={comment_score} max={maxComponent} color="#059669" />
+        </div>
+      </div>
+
+      <div style={{ borderTop: '1px dashed #fed7aa', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: '12px', fontWeight: 700, color: '#78350f' }}>최종 핫이슈 점수 (3:2:1 합산)</span>
+        <span style={{ fontSize: '18px', fontWeight: 900, color: '#c2410c' }}>{hot_score.toLocaleString()}점</span>
+      </div>
+      <p style={{ fontSize: '10px', color: '#9a6b3f', marginTop: '6px', lineHeight: 1.5 }}>
+        * 신문 지면/온라인 기사 구분 없이 최근 7일 데이터만 집계하며, 점수가 높은 순으로 메인 페이지 '대진대 핫이슈'에 노출됩니다.
+      </p>
+    </div>
+  );
+}
+
