@@ -69,7 +69,7 @@ router.get('/:articleId/public', async (req, res) => {
               a.reporter_name, a.reporter_email,
               a.approved_at, a.revised_at,
               a.view_count, a.read_time_total, a.read_time_count,
-              ns.section_key, ns.section_name, ns.page_number,
+              ns.section_key, ns.section_name, ns.page_number, ns.category,
               ns.has_subtitle, ns.has_body, ns.photo_count, ns.caption_required,
               n.issue_number, n.title as newspaper_title, n.publish_date
        FROM articles a

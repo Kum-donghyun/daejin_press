@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import CommentSection from '../components/CommentSection';
@@ -29,20 +29,33 @@ function avgReadTime(total, count) {
   return `${Math.floor(sec / 60)}분 ${sec % 60}초`;
 }
 
-/* ── 섹션 카테고리 색상 ── */
-const CAT_MAP = [
-  { key: '문화면',     label: '문화',       color: '#c62828' },
-  { key: '칼럼',       label: '특집',   color: '#6a1b9a' },
-  { key: '기자한마디', label: '기자한마디', color: '#283593' },
+/* ── 카테고리 매핑 (관리자가 지면 편집 단계에서 지정한 category 값 기준) ── */
+const CATEGORY_COLORS = {
+  '대학뉴스':  '#1565c0',
+  '학술·문화': '#c62828',
+  '오피니언':  '#e65100',
+  '기획특집':  '#00695c',
+  '학생자치':  '#283593',
+  '지역사회':  '#2e7d32',
+};
+const LEGACY_CAT_MAP = [
+  { key: '문화면',     label: '학술·문화',     color: '#c62828' },
+  { key: '칼럼',       label: '오피니언',   color: '#e65100' },
+  { key: '기자한마디', label: '오피니언', color: '#e65100' },
   { key: '조명탑',     label: '오피니언',   color: '#e65100' },
-  { key: '기획',       label: '기획',       color: '#00695c' },
+  { key: '기획',       label: '기획특집',       color: '#00695c' },
   { key: '지역사회',   label: '지역사회',   color: '#2e7d32' },
-  { key: '1면',        label: '학생자치',   color: '#1565c0' },
-  { key: '2면',        label: '학술',       color: '#1b5e20' },
+  { key: '1면',        label: '대학뉴스',   color: '#1565c0' },
+  { key: '2면',        label: '학술·문화',       color: '#c62828' },
 ];
-function getCategory(sectionKey) {
-  if (!sectionKey) return { label: '대학뉴스', color: '#003580' };
-  for (const c of CAT_MAP) if (sectionKey.includes(c.key)) return c;
+function getCategory(article) {
+  if (!article) return { label: '대학뉴스', color: '#003580' };
+  const cat = article.category;
+  if (cat && CATEGORY_COLORS[cat]) return { label: cat, color: CATEGORY_COLORS[cat] };
+  const sectionKey = article.section_key;
+  if (sectionKey) {
+    for (const c of LEGACY_CAT_MAP) if (sectionKey.includes(c.key)) return c;
+  }
   return { label: '대학뉴스', color: '#003580' };
 }
 
@@ -71,6 +84,7 @@ function editStyle(base = {}) {
 export default function ArticleDetail() {
   const { articleId } = useParams();
   const navigate      = useNavigate();
+  const location      = useLocation();
   const { isAdmin }   = useAuth();
 
   const [article, setArticle]   = useState(null);
@@ -241,7 +255,7 @@ export default function ArticleDetail() {
     );
   }
 
-  const cat       = getCategory(article.section_key);
+  const cat       = getCategory(article);
   const title     = editMode ? form.title     : stripHtml(article.title);
   const subtitle  = editMode ? form.subtitle  : stripHtml(article.subtitle);
   const body      = editMode ? form.body      : stripHtml(article.body);
@@ -547,7 +561,16 @@ export default function ArticleDetail() {
               </>
             )}
             <button
-              onClick={() => navigate('/')}
+              onClick={() => {
+                const from = location.state?.from;
+                if (from === 'section' && location.state?.section) {
+                  navigate(`/section/${encodeURIComponent(location.state.section)}`);
+                } else if (from === 'issue' && location.state?.issueId) {
+                  navigate(`/issues/${location.state.issueId}`, { state: { pageNumber: location.state.pageNumber } });
+                } else {
+                  navigate('/', { state: { tab: location.state?.tab } });
+                }
+              }}
               style={{ padding: '9px 22px', border: '1px solid #003580', background: 'none', color: '#003580', fontSize: '13px', fontWeight: 700, cursor: 'pointer', borderRadius: '2px', transition: 'all 0.15s' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#003580'; e.currentTarget.style.color = '#fff'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#003580'; }}
