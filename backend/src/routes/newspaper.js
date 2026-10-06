@@ -574,4 +574,75 @@ router.get('/section/articles', async (req, res) => {
   }
 });
 
+// ─── 지면 보기: 발행된 호수 목록 (공개) ───
+router.get('/public/issues', async (req, res) => {
+  try {
+    const [issues] = await pool.query(
+      `SELECT n.id, n.issue_number, n.title, n.publish_date,
+              (SELECT COUNT(*) FROM articles a WHERE a.newspaper_id = n.id AND a.status = 'approved') AS article_count
+       FROM newspapers n
+       WHERE n.status = 'published'
+       ORDER BY n.issue_number DESC`
+    );
+    res.json({ issues });
+  } catch (err) {
+    console.error('발행 호수 목록 조회 에러:', err);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+});
+
+// ─── 지면 보기: 특정 호수의 지면별 기사 레이아웃 (공개) ───
+router.get('/public/:id', async (req, res) => {
+  try {
+    const [newspapers] = await pool.query(
+      `SELECT id, issue_number, title, publish_date FROM newspapers WHERE id = ? AND status = 'published'`,
+      [req.params.id]
+    );
+    if (newspapers.length === 0) {
+      return res.status(404).json({ message: '발행된 신문을 찾을 수 없습니다.' });
+    }
+    const np = newspapers[0];
+
+    const [sections] = await pool.query(
+      `SELECT ns.id AS section_id, ns.section_key, ns.section_name, ns.page_number, ns.sort_order, ns.category,
+              a.id AS article_id, a.title, a.subtitle, a.photo1_url, a.reporter_name, a.approved_at, a.status
+       FROM newspaper_sections ns
+       LEFT JOIN articles a ON a.section_id = ns.id
+       WHERE ns.newspaper_id = ?
+       ORDER BY ns.sort_order ASC`,
+      [req.params.id]
+    );
+
+    // 면(page_number) 별로 그룹화
+    const pageMap = {};
+    for (const s of sections) {
+      if (!pageMap[s.page_number]) pageMap[s.page_number] = [];
+      pageMap[s.page_number].push({
+        section_id: s.section_id,
+        section_key: s.section_key,
+        section_name: s.section_name,
+        category: s.category,
+        sort_order: s.sort_order,
+        article_id: s.status === 'approved' ? s.article_id : null,
+        title: s.status === 'approved' ? s.title : null,
+        subtitle: s.status === 'approved' ? s.subtitle : null,
+        photo1_url: s.status === 'approved' ? s.photo1_url : null,
+        reporter_name: s.status === 'approved' ? s.reporter_name : null,
+        approved_at: s.status === 'approved' ? s.approved_at : null,
+        has_article: s.status === 'approved',
+      });
+    }
+
+    const pages = Object.keys(pageMap)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .map(pageNumber => ({ page_number: pageNumber, sections: pageMap[pageNumber] }));
+
+    res.json({ newspaper: np, pages });
+  } catch (err) {
+    console.error('지면 보기 조회 에러:', err);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+});
+
 module.exports = router;

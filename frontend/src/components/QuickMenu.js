@@ -12,6 +12,7 @@ const CATEGORY_ITEMS = [
 ];
 
 const SERVICE_ITEMS = [
+  { label: '지면 보기', icon: 'fas fa-newspaper',  path: '/issues' },
   { label: '기자 지원', icon: 'fas fa-pen-nib',   path: '/contact/apply' },
   { label: '제보하기',  icon: 'fas fa-bullhorn',  path: '/contact/report' },
   { label: '광고 문의', icon: 'fas fa-briefcase', path: '/contact/advertise' },

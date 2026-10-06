@@ -49,6 +49,10 @@ function Navbar() {
               onMouseEnter={e => e.currentTarget.style.color = '#fff'}
               onMouseLeave={e => e.currentTarget.style.color = 'rgba(191,219,254,0.85)'}
             >독자 투고</a>
+            <a href="#" onClick={e => { e.preventDefault(); navigate('/issues'); }} style={{ color: 'rgba(191,219,254,0.85)', transition: 'color 0.15s', letterSpacing: '0.5px' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+              onMouseLeave={e => e.currentTarget.style.color = 'rgba(191,219,254,0.85)'}
+            >지면 보기</a>
             <a href="#" onClick={e => { e.preventDefault(); navigate('/contact/report'); }} style={{ color: 'rgba(191,219,254,0.85)', transition: 'color 0.15s', letterSpacing: '0.5px' }}
               onMouseEnter={e => e.currentTarget.style.color = '#fff'}
               onMouseLeave={e => e.currentTarget.style.color = 'rgba(191,219,254,0.85)'}

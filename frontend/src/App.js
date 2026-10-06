@@ -15,6 +15,8 @@ import OnlineArticleDetail from './pages/OnlineArticleDetail';
 import SectionPage from './pages/SectionPage';
 import ContactPage from './pages/ContactPage';
 import SearchPage from './pages/SearchPage';
+import IssueListPage from './pages/IssueListPage';
+import IssueViewPage from './pages/IssueViewPage';
 import Toast from './components/Toast';
 
 function App() {
@@ -39,6 +41,8 @@ function App() {
             <Route path="/section/:section" element={<SectionPage />} />
             <Route path="/contact/:type" element={<ContactPage />} />
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/issues" element={<IssueListPage />} />
+            <Route path="/issues/:id" element={<IssueViewPage />} />
           </Routes>
           <Toast />
         </div>
