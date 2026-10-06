@@ -92,7 +92,8 @@ router.post('/:id/read-time', async (req, res) => {
   const { seconds } = req.body;
   if (!seconds || seconds < 3) return res.json({ ok: false });
 
-  const token = req.headers.authorization?.split(' ')[1];
+  // sendBeacon은 Authorization 헤더를 지원하지 않으므로 쿼리스트링 토큰도 함께 확인
+  const token = req.headers.authorization?.split(' ')[1] || req.query.token;
   if (token) {
     try {
       const jwt = require('jsonwebtoken');

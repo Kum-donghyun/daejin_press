@@ -136,7 +136,9 @@ export default function ArticleDetail() {
     sentReadTime.current = true;
     const seconds = (Date.now() - enterTime.current) / 1000;
     if (seconds >= 3) {
-      const url  = `${API}/articles/${articleId}/read-time`;
+      // sendBeacon은 커스텀 헤더를 지원하지 않으므로 토큰을 쿼리스트링으로 전달 (기자/편집장 제외 판별용)
+      const token = localStorage.getItem('dju_token');
+      const url  = `${API}/articles/${articleId}/read-time` + (token ? `?token=${encodeURIComponent(token)}` : '');
       const data = JSON.stringify({ seconds });
       if (navigator.sendBeacon) {
         navigator.sendBeacon(url, new Blob([data], { type: 'application/json' }));

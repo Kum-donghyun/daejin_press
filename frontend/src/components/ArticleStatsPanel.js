@@ -72,15 +72,22 @@ export default function ArticleStatsPanel({ scope = 'reporter' }) {
 
   useEffect(() => { fetchArticles(); }, [fetchArticles]);
 
+  const getSortValue = (stats, key) => {
+    if (!stats) return 0;
+    if (key === 'hot_score') return stats.hot_issue?.hot_score || 0;
+    return stats[key] || 0;
+  };
+
   const sorted = [...articles].sort((a, b) => {
     const sa = statsMap[a.article_id] || {};
     const sb = statsMap[b.article_id] || {};
-    return (sb[sort] || 0) - (sa[sort] || 0);
+    return getSortValue(sb, sort) - getSortValue(sa, sort);
   });
 
   const maxView    = Math.max(1, ...Object.values(statsMap).map(s => s.view_count    || 0));
   const maxTime    = Math.max(1, ...Object.values(statsMap).map(s => s.avg_seconds   || 0));
   const maxComment = Math.max(1, ...Object.values(statsMap).map(s => s.comment_count || 0));
+  const maxHotScore = Math.max(1, ...Object.values(statsMap).map(s => s.hot_issue?.hot_score || 0));
 
   const selStats = selected ? (statsMap[selected.article_id] || {}) : null;
 
@@ -91,7 +98,7 @@ export default function ArticleStatsPanel({ scope = 'reporter' }) {
       <div>
         {/* 정렬 */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-          {[['view_count','👁 조회수'],['avg_seconds','⏱ 체류시간'],['comment_count','💬 댓글']].map(([k,l]) => (
+          {[['view_count','👁 조회수'],['avg_seconds','⏱ 체류시간'],['comment_count','💬 댓글'],['hot_score','🔥 핵이슈']].map(([k,l]) => (
             <button key={k} onClick={() => setSort(k)}
               style={{ padding: '5px 14px', borderRadius: '20px', border: '1.5px solid', borderColor: sort === k ? '#003580' : '#e5e7eb', background: sort === k ? '#003580' : '#fff', color: sort === k ? '#fff' : '#6b7280', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
               {l} 순
@@ -134,7 +141,7 @@ export default function ArticleStatsPanel({ scope = 'reporter' }) {
                   </div>
 
                   {/* 통계 바 */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', paddingLeft: '32px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', paddingLeft: '32px' }}>
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#6b7280' }}>
                         <span><i className="far fa-eye" style={{ marginRight: '3px' }}></i>조회수</span>
@@ -155,6 +162,13 @@ export default function ArticleStatsPanel({ scope = 'reporter' }) {
                         <span style={{ fontWeight: 700, color: '#111' }}>{st.comment_count || 0}</span>
                       </div>
                       <StatBar value={st.comment_count || 0} max={maxComment} color="#059669" />
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#6b7280' }}>
+                        <span><i className="fas fa-fire" style={{ marginRight: '3px' }}></i>핵이슈점수</span>
+                        <span style={{ fontWeight: 700, color: '#c2410c' }}>{(st.hot_issue?.hot_score || 0).toLocaleString()}</span>
+                      </div>
+                      <StatBar value={st.hot_issue?.hot_score || 0} max={maxHotScore} color="#ea580c" />
                     </div>
                   </div>
                 </div>

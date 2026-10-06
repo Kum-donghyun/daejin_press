@@ -274,6 +274,27 @@ if (!fs.existsSync(uploadsDir)) {
     console.log('✅ article_read_times 테이블 확인/생성 완료');
   } catch(e) { console.error('❌ article_read_times:', e.message); }
 
+  // ─── 1회성 정리: 과거 집계 방식 오류로 조회수가 0인데 체류시간 기록만 남아있는 데이터 초기화 ───
+  try {
+    const [r1] = await pool.query(`
+      DELETE art FROM article_read_times art
+      JOIN articles a ON art.article_type = 'newspaper' AND art.article_id = a.id
+      WHERE IFNULL(a.view_count, 0) = 0
+    `);
+    const [r2] = await pool.query(`
+      DELETE art FROM article_read_times art
+      WHERE art.article_type = 'online'
+        AND NOT EXISTS (
+          SELECT 1 FROM article_views v
+          WHERE v.article_id = art.article_id AND v.article_type = 'online' AND v.view_type = 'view'
+        )
+    `);
+    await pool.query(`UPDATE articles SET read_time_total = 0, read_time_count = 0 WHERE view_count = 0`);
+    if (r1.affectedRows || r2.affectedRows) {
+      console.log(`✅ 조회수 0건인 기사의 체류시간 데이터 ${r1.affectedRows + r2.affectedRows}건 초기화 완료`);
+    }
+  } catch(e) { console.error('❌ 체류시간 데이터 정리 실패:', e.message); }
+
   // comments 테이블
   try {
     await pool.query(`CREATE TABLE IF NOT EXISTS comments (
