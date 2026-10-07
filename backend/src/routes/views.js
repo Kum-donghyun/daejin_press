@@ -189,7 +189,7 @@ router.get('/hot-issues', async (req, res) => {
     const [rows] = await pool.query(`
       SELECT
         a.id, a.title, a.subtitle, a.body, a.photo1_url, a.reporter_name, a.approved_at,
-        ns.section_key, ns.section_name, ns.page_number,
+        ns.section_key, ns.section_name, ns.page_number, ns.category,
         n.issue_number, n.title AS newspaper_title,
         IFNULL(v.cnt, 0)              AS view_count,
         IFNULL(rt.avg_sec, 0)         AS avg_read_sec,
@@ -227,7 +227,7 @@ router.get('/hot-issues', async (req, res) => {
     const [oRows] = await pool.query(`
       SELECT
         oa.id, oa.title, oa.subtitle, oa.body, oa.photo1_url, oa.reporter_name, oa.approved_at,
-        NULL AS section_key, '온라인' AS section_name, NULL AS page_number,
+        NULL AS section_key, '온라인' AS section_name, NULL AS page_number, NULL AS category,
         NULL AS issue_number, NULL AS newspaper_title,
         IFNULL(v.cnt, 0)             AS view_count,
         IFNULL(rt.avg_sec, 0)        AS avg_read_sec,

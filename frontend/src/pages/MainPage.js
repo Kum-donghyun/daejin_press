@@ -7,21 +7,40 @@ import axios from 'axios';
 const API     = '/api';
 const BACKEND = '';
 
-/* ── 카테고리 매핑 ──────────────────────────────────────────────────────── */
-const CAT_MAP = [
-  { key: '문화면',      label: '문화',       color: '#c62828' },
-  { key: '칼럼',        label: '특집',   color: '#6a1b9a' },
-  { key: '기자한마디',  label: '기자한마디', color: '#283593' },
-  { key: '조명탑',      label: '오피니언',   color: '#e65100' },
-  { key: '기획',        label: '기획',       color: '#00695c' },
-  { key: '지역사회',    label: '지역사회',   color: '#2e7d32' },
-  { key: '1면',         label: '학생자치',   color: '#1565c0' },
-  { key: '2면',         label: '학술',       color: '#1b5e20' },
+/* ── 카테고리 매핑 (관리자가 지면 편집 단계에서 지정한 category 값 기준) ─────────────────────────────────── */
+const CATEGORY_COLORS = {
+  '대학뉴스':  '#003580',
+  '학술·문화': '#c62828',
+  '오피니언':  '#e65100',
+  '기획특집':  '#00695c',
+  '학생자치':  '#1565c0',
+  '지역사회':  '#2e7d32',
+};
+
+// 관리자가 카테고리를 지정하기 전의 과거 기사(category 값이 null)를 위한 하위 호환 매핑
+const LEGACY_CAT_MAP = [
+  { key: '문화면',      label: '학술·문화' },
+  { key: '칼럼',        label: '오피니언' },
+  { key: '기자한마디',  label: '오피니언' },
+  { key: '조명탑',      label: '오피니언' },
+  { key: '기획',        label: '기획특집' },
+  { key: '지역사회',    label: '지역사회' },
+  { key: '1면',         label: '대학뉴스' },
+  { key: '2면',         label: '학술·문화' },
 ];
-function getCategoryTag(sectionKey) {
-  if (!sectionKey) return { label: '대학뉴스', color: '#003580' };
-  for (const c of CAT_MAP) {
-    if (sectionKey.includes(c.key)) return c;
+
+function getCategoryTag(article) {
+  if (!article) return { label: '대학뉴스', color: '#003580' };
+  // 1순위: 관리자가 지면 편집 단계에서 직접 지정한 category 값
+  if (article.category && CATEGORY_COLORS[article.category]) {
+    return { label: article.category, color: CATEGORY_COLORS[article.category] };
+  }
+  // 2순위(하위 호환): category가 지정되지 않은 과거 기사는 section_key 키워드로 추정
+  const sectionKey = article.section_key;
+  if (sectionKey) {
+    for (const c of LEGACY_CAT_MAP) {
+      if (sectionKey.includes(c.key)) return { label: c.label, color: CATEGORY_COLORS[c.label] || '#003580' };
+    }
   }
   return { label: '대학뉴스', color: '#003580' };
 }
@@ -57,7 +76,7 @@ function SectionDivider({ title, action, onActionClick, expanded }) {
 
 /* ── 히어로(특집) 기사 ───────────────────────────────────────────────────── */
 function FeaturedArticle({ article, onClick }) {
-  const cat   = getCategoryTag(article.section_key);
+  const cat   = getCategoryTag(article);
   const title = stripHtml(article.title);
   const sub   = stripHtml(article.subtitle);
   return (
@@ -102,7 +121,7 @@ function FeaturedArticle({ article, onClick }) {
 
 /* ── 사이드 기사 카드 ────────────────────────────────────────────────────── */
 function SideArticle({ article, isLast, onClick }) {
-  const cat   = getCategoryTag(article.section_key);
+  const cat   = getCategoryTag(article);
   const title = stripHtml(article.title);
   return (
     <div className="side-article article-card group" onClick={onClick} style={{ borderBottom: isLast ? 'none' : '1px solid #e5e7eb', flex: 1, cursor: 'pointer' }}>
@@ -130,7 +149,7 @@ function SideArticle({ article, isLast, onClick }) {
 
 /* ── 4열 그리드 기사 카드 ────────────────────────────────────────────────── */
 function GridArticle({ article, onClick }) {
-  const cat   = getCategoryTag(article.section_key);
+  const cat   = getCategoryTag(article);
   const title = stripHtml(article.title);
   const body  = stripHtml(article.body);
   return (
@@ -233,7 +252,7 @@ function MainPage() {
   const sideArticles    = filteredArticles.slice(1, 4);
   const gridArticles    = filteredArticles.slice(4, 12);
   const opinionArticles = filteredArticles
-    .filter(a => a.section_key?.includes('칼럼') || a.section_key?.includes('조명탑'))
+    .filter(a => getCategoryTag(a).label === '오피니언')
     .slice(0, 3);
 
   return (
