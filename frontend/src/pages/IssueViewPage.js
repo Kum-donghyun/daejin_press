@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Footer from '../components/Footer';
 
@@ -92,7 +92,6 @@ function SectionBanner({ sec, onClick }) {
 function IssueViewPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const [newspaper, setNewspaper] = useState(null);
   const [pages, setPages] = useState([]);
   const [activePage, setActivePage] = useState(null);
@@ -106,13 +105,7 @@ function IssueViewPage() {
       .then(res => {
         setNewspaper(res.data.newspaper);
         setPages(res.data.pages || []);
-        const restoredPage = location.state?.pageNumber;
-        const availablePages = (res.data.pages || []).map(p => p.page_number);
-        if (restoredPage && availablePages.includes(restoredPage)) {
-          setActivePage(restoredPage);
-        } else {
-          setActivePage(availablePages[0] ?? null);
-        }
+        setActivePage((res.data.pages || [])[0]?.page_number ?? null);
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
@@ -190,7 +183,7 @@ function IssueViewPage() {
         {currentPage ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {currentPage.sections.map(sec => (
-              <SectionBanner key={sec.section_id} sec={sec} onClick={() => navigate(`/article/${sec.article_id}`, { state: { from: 'issue', issueId: id, pageNumber: activePage } })} />
+              <SectionBanner key={sec.section_id} sec={sec} onClick={() => navigate(`/article/${sec.article_id}`)} />
             ))}
           </div>
         ) : (

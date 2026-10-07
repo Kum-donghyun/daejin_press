@@ -19,16 +19,7 @@ const SECTION_META = {
 
 const NAV_ITEMS = ['전체', '대학뉴스', '학술·문화', '오피니언', '기획특집', '학생자치', '지역사회'];
 
-const CATEGORY_COLORS = {
-  '대학뉴스':  '#1565c0',
-  '학술·문화': '#c62828',
-  '오피니언':  '#e65100',
-  '기획특집':  '#00695c',
-  '학생자치':  '#283593',
-  '지역사회':  '#2e7d32',
-};
-
-const LEGACY_CAT_MAP = [
+const CAT_MAP = [
   { key: '문화면',      label: '문화',       color: '#c62828' },
   { key: '칼럼',        label: '특집',   color: '#6a1b9a' },
   { key: '기자한마디',  label: '기자한마디', color: '#283593' },
@@ -39,13 +30,10 @@ const LEGACY_CAT_MAP = [
   { key: '2면',         label: '학술',       color: '#1b5e20' },
 ];
 
-function getCategoryTag(article) {
-  if (!article) return { label: '대학뉴스', color: '#003580' };
-  const cat = article.category;
-  if (cat && CATEGORY_COLORS[cat]) return { label: cat, color: CATEGORY_COLORS[cat] };
-  const sectionKey = article.section_key;
-  if (sectionKey) {
-    for (const c of LEGACY_CAT_MAP) if (sectionKey.includes(c.key)) return c;
+function getCategoryTag(sectionKey) {
+  if (!sectionKey) return { label: '대학뉴스', color: '#003580' };
+  for (const c of CAT_MAP) {
+    if (sectionKey.includes(c.key)) return c;
   }
   return { label: '대학뉴스', color: '#003580' };
 }
@@ -66,7 +54,7 @@ function formatDate(dt) {
 
 /* 히어로 카드 (최신 1건, 사진 있을 때) */
 function HeroCard({ article, onClick }) {
-  const cat   = getCategoryTag(article);
+  const cat   = getCategoryTag(article.section_key);
   const title = stripHtml(article.title);
   const sub   = stripHtml(article.subtitle);
   const body  = stripHtml(article.body);
@@ -108,7 +96,7 @@ function HeroCard({ article, onClick }) {
 
 /* 가로형 리스트 카드 */
 function ListCard({ article, onClick, isLast }) {
-  const cat   = getCategoryTag(article);
+  const cat   = getCategoryTag(article.section_key);
   const title = stripHtml(article.title);
   const body  = stripHtml(article.body);
 
@@ -149,7 +137,7 @@ function ListCard({ article, onClick, isLast }) {
 
 /* 그리드 카드 (3열) */
 function GridCard({ article, onClick }) {
-  const cat   = getCategoryTag(article);
+  const cat   = getCategoryTag(article.section_key);
   const title = stripHtml(article.title);
   const body  = stripHtml(article.body);
 
@@ -291,7 +279,7 @@ function SectionPage() {
             {/* ① 히어로 카드 */}
             {hero && (
               <div style={{ marginBottom: '0' }}>
-                <HeroCard article={hero} onClick={() => navigate(`/article/${hero.id}`, { state: { from: 'section', section: decodedSection } })} />
+                <HeroCard article={hero} onClick={() => navigate(`/article/${hero.id}`)} />
               </div>
             )}
 
@@ -303,7 +291,7 @@ function SectionPage() {
                 <div style={{ padding: '0 32px 0 0', borderRight: '1px solid #e5e7eb' }}>
                   <div style={{ paddingTop: '8px' }}>
                     {listCol.map((art, i) => (
-                      <ListCard key={art.id} article={art} onClick={() => navigate(`/article/${art.id}`, { state: { from: 'section', section: decodedSection } })}
+                      <ListCard key={art.id} article={art} onClick={() => navigate(`/article/${art.id}`)}
                         isLast={i === listCol.length - 1 && gridCol.length === 0} />
                     ))}
                   </div>
@@ -317,7 +305,7 @@ function SectionPage() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
                     {gridCol.map((art, i) => (
                       <div key={art.id} style={{ borderBottom: i === gridCol.length - 1 ? 'none' : '1px solid #e5e7eb', paddingBottom: '14px', paddingTop: '14px' }}>
-                        <GridCard article={art} onClick={() => navigate(`/article/${art.id}`, { state: { from: 'section', section: decodedSection } })} />
+                        <GridCard article={art} onClick={() => navigate(`/article/${art.id}`)} />
                       </div>
                     ))}
                   </div>

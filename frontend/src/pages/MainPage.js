@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 import axios from 'axios';
@@ -57,7 +57,7 @@ function SectionDivider({ title, action, onActionClick, expanded }) {
 
 /* ── 히어로(특집) 기사 ───────────────────────────────────────────────────── */
 function FeaturedArticle({ article, onClick }) {
-  const cat   = getCategoryTag(article);
+  const cat   = getCategoryTag(article.section_key);
   const title = stripHtml(article.title);
   const sub   = stripHtml(article.subtitle);
   return (
@@ -102,7 +102,7 @@ function FeaturedArticle({ article, onClick }) {
 
 /* ── 사이드 기사 카드 ────────────────────────────────────────────────────── */
 function SideArticle({ article, isLast, onClick }) {
-  const cat   = getCategoryTag(article);
+  const cat   = getCategoryTag(article.section_key);
   const title = stripHtml(article.title);
   return (
     <div className="side-article article-card group" onClick={onClick} style={{ borderBottom: isLast ? 'none' : '1px solid #e5e7eb', flex: 1, cursor: 'pointer' }}>
@@ -130,7 +130,7 @@ function SideArticle({ article, isLast, onClick }) {
 
 /* ── 4열 그리드 기사 카드 ────────────────────────────────────────────────── */
 function GridArticle({ article, onClick }) {
-  const cat   = getCategoryTag(article);
+  const cat   = getCategoryTag(article.section_key);
   const title = stripHtml(article.title);
   const body  = stripHtml(article.body);
   return (
@@ -191,7 +191,6 @@ function MainPage() {
   const [activeTab, setActiveTab] = useState('전체뉴스보기');
   const { isLoggedIn, user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [approvedData, setApprovedData] = useState({ articles: [], tabs: [], tabPageMap: [], newspaper: null });
   const [quickNews, setQuickNews] = useState([]);
   const [videos, setVideos]       = useState([]);
@@ -204,12 +203,7 @@ function MainPage() {
     axios.get(`${API}/newspapers/approved/articles`)
       .then(res => {
         setApprovedData(res.data);
-        const restoredTab = location.state?.tab;
-        if (restoredTab && res.data.tabs?.includes(restoredTab)) {
-          setActiveTab(restoredTab);
-        } else if (res.data.tabs?.length > 0) {
-          setActiveTab('전체뉴스보기');
-        }
+        if (res.data.tabs?.length > 0) setActiveTab('전체뉴스보기');
       })
       .catch(() => {});
     axios.get(`${API}/online-articles/public?limit=8`)
@@ -224,10 +218,6 @@ function MainPage() {
     axios.get(`${API}/articles/hot-issues?limit=8`)
       .then(res => setHotIssues(res.data.articles || []))
       .catch(() => {});
-    // 기사 상세에서 '목록으로 돌아가기'로 돌아온 경우, 해당 탭/위치로 자동 스크롤
-    if (location.state?.tab) {
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
-    }
   }, []);
 
   const tabs = approvedData.tabs?.length > 0 ? approvedData.tabs : [];
@@ -322,12 +312,12 @@ function MainPage() {
             ════════════════════════════════════ */}
             <div className="editorial-hero">
               {/* 좌: 특집 기사 */}
-              {featured && <FeaturedArticle article={featured} onClick={() => navigate(`/article/${featured.id}`, { state: { from: 'main', tab: activeTab } })} />}
+              {featured && <FeaturedArticle article={featured} onClick={() => navigate(`/article/${featured.id}`)} />}
 
               {/* 우: 사이드 기사 스택 */}
               <div className="side-stack">
                 {sideArticles.map((art, i) => (
-                  <SideArticle key={art.id} article={art} isLast={i === sideArticles.length - 1} onClick={() => navigate(`/article/${art.id}`, { state: { from: 'main', tab: activeTab } })} />
+                  <SideArticle key={art.id} article={art} isLast={i === sideArticles.length - 1} onClick={() => navigate(`/article/${art.id}`)} />
                 ))}
                 {sideArticles.length === 0 && (
                   <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d1d5db' }}>
@@ -348,7 +338,7 @@ function MainPage() {
                     const isOnline = art.article_type === 'online';
                     const path = isOnline ? `/online-article/${art.id}` : `/article/${art.id}`;
                     return (
-                      <div key={`${art.article_type}-${art.id}`} className="grid-cell article-card group" onClick={() => navigate(path, isOnline ? undefined : { state: { from: 'main', tab: activeTab } })} style={{ cursor: 'pointer' }}>
+                      <div key={`${art.article_type}-${art.id}`} className="grid-cell article-card group" onClick={() => navigate(path)} style={{ cursor: 'pointer' }}>
                         {art.photo1_url && (
                           <div style={{ height: '120px', overflow: 'hidden', marginBottom: '12px' }}>
                             <img src={BACKEND + art.photo1_url} alt=""
@@ -382,7 +372,7 @@ function MainPage() {
                 <SectionDivider title="전체 기사" action={showAllArticles ? '접기' : '더보기'} expanded={showAllArticles} onActionClick={() => setShowAllArticles(p => !p)} />
                 {showAllArticles && (
                   <div className="editorial-news-grid">
-                    {gridArticles.map(art => <GridArticle key={art.id} article={art} onClick={() => navigate(`/article/${art.id}`, { state: { from: 'main', tab: activeTab } })} />)}
+                    {gridArticles.map(art => <GridArticle key={art.id} article={art} onClick={() => navigate(`/article/${art.id}`)} />)}
                   </div>
                 )}
               </>
@@ -396,7 +386,7 @@ function MainPage() {
                 <SectionDivider title="오피니언 · 칼럼" action={showOpinion ? '접기' : '전체보기'} expanded={showOpinion} onActionClick={() => setShowOpinion(p => !p)} />
                 {showOpinion && (
                   <div className="editorial-opinion-grid">
-                    {opinionArticles.map(art => <OpinionArticle key={art.id} article={art} onClick={() => navigate(`/article/${art.id}`, { state: { from: 'main', tab: activeTab } })} />)}
+                    {opinionArticles.map(art => <OpinionArticle key={art.id} article={art} onClick={() => navigate(`/article/${art.id}`)} />)}
                   </div>
                 )}
               </>
