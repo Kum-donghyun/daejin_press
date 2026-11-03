@@ -692,10 +692,13 @@ function AdminPanel() {
                   return (
                     <div key={u.id} style={{ background: '#fff', borderRadius: '10px', padding: '16px 20px', border: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                           <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', background: '#e8edf5', color: '#003580' }}>
                             {TYPE_LABEL[u.verified_type] || u.verified_type}
                           </span>
+                          {!!u.is_graduate && (
+                            <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', background: '#ede9fe', color: '#5b21b6' }}>졸업생</span>
+                          )}
                           <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', background: st.bg, color: st.color }}>{st.text}</span>
                           <span style={{ fontSize: '11px', color: '#9ca3af' }}>{new Date(u.created_at).toLocaleDateString('ko-KR')} 신청</span>
                         </div>
@@ -705,6 +708,16 @@ function AdminPanel() {
                         <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '2px' }}>
                           {u.verified_department} · {u.verified_id}
                         </p>
+                        {u.verified_id_card ? (
+                          <a href={u.verified_id_card} target="_blank" rel="noopener noreferrer"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#003580', marginTop: '6px' }}>
+                            <i className="fas fa-id-card"></i> 학생증 캡처본 확인
+                          </a>
+                        ) : u.verified_type === 'student' && (
+                          <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '6px' }}>
+                            <i className="fas fa-info-circle" style={{ marginRight: '4px' }}></i>첨부된 캡처본 없음 (졸업생)
+                          </p>
+                        )}
                       </div>
                       {u.verified_status === 'pending' && (
                         <div style={{ display: 'flex', gap: '8px' }}>

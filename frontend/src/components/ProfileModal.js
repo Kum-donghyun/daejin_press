@@ -25,7 +25,8 @@ function ProfileModal({ onClose }) {
   const isReader = user?.role === 'reader';
 
   // 실명 인증
-  const [verifiedForm, setVerifiedForm] = useState({ verified_type: 'student', real_name: '', department: '', id_number: '', agreed: false });
+  const [verifiedForm, setVerifiedForm] = useState({ verified_type: 'student', real_name: '', department: '', id_number: '', agreed: false, is_graduate: false });
+  const [idCardFile, setIdCardFile] = useState(null);
   const [verifying, setVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState('');
   const verifiedStatus = user?.verified_status;
@@ -87,12 +88,21 @@ function ProfileModal({ onClose }) {
       setVerifyError('모든 항목을 입력해주세요.'); return;
     }
     if (!verifiedForm.agreed) { setVerifyError('개인정보 제공에 동의해주세요.'); return; }
+    if (verifiedForm.verified_type === 'student' && !verifiedForm.is_graduate && !idCardFile) {
+      setVerifyError("재학생은 '헤이영' 앱의 모바일 학생증 캡처본을 첨부해주세요. (졸업생은 졸업생 체크란에 체크해주세요.)"); return;
+    }
     setVerifying(true);
     try {
       const token = localStorage.getItem('dju_token');
-      const res = await axios.post(`${API}/verified/request`, verifiedForm, { headers: { Authorization: `Bearer ${token}` } });
+      const fd = new FormData();
+      fd.append('verified_type', verifiedForm.verified_type);
+      fd.append('real_name', verifiedForm.real_name);
+      fd.append('department', verifiedForm.department);
+      fd.append('id_number', verifiedForm.id_number);
+      fd.append('is_graduate', verifiedForm.is_graduate ? 'true' : 'false');
+      if (idCardFile) fd.append('id_card', idCardFile);
+      const res = await axios.post(`${API}/verified/request`, fd, { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } });
       showToast(res.data.message, 'success');
-      if (res.data.user) { /* 자동승인 시 user 갱신 */ window.location.reload(); }
     } catch (err) {
       setVerifyError(err.response?.data?.message || '신청에 실패했습니다.');
     } finally { setVerifying(false); }
@@ -315,13 +325,34 @@ function ProfileModal({ onClose }) {
                       onFocus={e => e.target.style.borderColor='#003580'} onBlur={e => e.target.style.borderColor='#e5e7eb'} />
                   </div>
 
+                  {verifiedForm.verified_type === 'student' && (
+                    <>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#374151', cursor: 'pointer', marginBottom: '10px', background: '#f8fafc', border: '1px solid #e5e7eb', borderRadius: '6px', padding: '8px 12px' }}>
+                        <input type="checkbox" checked={verifiedForm.is_graduate} onChange={e => setVerifiedForm(p => ({...p, is_graduate: e.target.checked}))} style={{ accentColor: '#003580' }} />
+                        <span>저는 <strong>졸업생</strong>입니다. (체크 시 학생증 캡처본 첨부 생략 가능)</span>
+                      </label>
+
+                      {!verifiedForm.is_graduate && (
+                        <div style={{ marginBottom: '10px' }}>
+                          <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#374151', marginBottom: '6px' }}>
+                            모바일 학생증 캡처본 <span style={{ color: '#d32f2f' }}>*</span>
+                            <span style={{ fontWeight: 400, color: '#9ca3af', marginLeft: '4px' }}>('헤이영' 앱 캡처)</span>
+                          </label>
+                          <input type="file" accept="image/*" onChange={e => setIdCardFile(e.target.files?.[0] || null)}
+                            style={{ width: '100%', fontSize: '12px', padding: '8px 10px', border: '1.5px solid #e5e7eb', borderRadius: '6px' }} />
+                          {idCardFile && <p style={{ fontSize: '11px', color: '#2e7d32', marginTop: '4px' }}>✓ {idCardFile.name}</p>}
+                        </div>
+                      )}
+                    </>
+                  )}
+
                   <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '6px', padding: '10px 12px', fontSize: '12px', color: '#92400e', marginBottom: '10px' }}>
-                    실명 사용자 중복 발생 또는 댓글로 인한 문제 발생 시 별도 인증 절차가 진행될 수 있습니다.
+                    '헤이영' 앱의 <strong>모바일 학생증 캡처본</strong>을 첨부해야 재학생 여부 확인 및 실명 인증 절차가 진행됩니다. 졸업생은 위 <strong>졸업생 체크란</strong>에 체크하면 캡처본 첨부를 생략할 수 있습니다. 편집장/부편집장이 캡처본 확인 후 댓글 작성 권한을 부여합니다. 실명 사용자 중복 발생 또는 댓글로 인한 문제 발생 시 별도 인증 절차가 진행될 수 있습니다.
                   </div>
 
                   <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '12px', color: '#374151', cursor: 'pointer', marginBottom: '10px' }}>
                     <input type="checkbox" checked={verifiedForm.agreed} onChange={e => setVerifiedForm(p => ({...p, agreed: e.target.checked}))} style={{ marginTop: '2px', accentColor: '#003580' }} />
-                    <span>[필수] 개인정보(이름, 학과, 학번)를 대진대학교 신문사에 제공하며, 실명 인증 목적으로만 사용됨에 동의합니다.</span>
+                    <span>[필수] 개인정보(이름, 학과, 학번, 학생증 캡처본)를 대진대학교 신문사에 제공하며, 실명 인증 목적으로만 사용됨에 동의합니다.</span>
                   </label>
 
                   {verifyError && <p style={{ fontSize: '12px', color: '#d32f2f', marginBottom: '8px' }}>{verifyError}</p>}

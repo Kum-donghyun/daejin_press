@@ -219,6 +219,8 @@ if (!fs.existsSync(uploadsDir)) {
     { name: 'verified_real_name',   sql: `ALTER TABLE users ADD COLUMN verified_real_name VARCHAR(100) DEFAULT NULL` },
     { name: 'verified_department',  sql: `ALTER TABLE users ADD COLUMN verified_department VARCHAR(200) DEFAULT NULL` },
     { name: 'verified_id',          sql: `ALTER TABLE users ADD COLUMN verified_id VARCHAR(30) DEFAULT NULL` },
+    { name: 'verified_id_card',     sql: `ALTER TABLE users ADD COLUMN verified_id_card VARCHAR(300) DEFAULT NULL` },
+    { name: 'is_graduate',          sql: `ALTER TABLE users ADD COLUMN is_graduate TINYINT(1) NOT NULL DEFAULT 0` },
     { name: 'verified_status',      sql: `ALTER TABLE users ADD COLUMN verified_status ENUM('pending','approved','rejected') DEFAULT NULL` },
     { name: 'verified_at',          sql: `ALTER TABLE users ADD COLUMN verified_at TIMESTAMP NULL DEFAULT NULL` },
   ];
